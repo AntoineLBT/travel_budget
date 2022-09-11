@@ -5,3 +5,7 @@ django-filter
 markdown
 PyHamcrest
 coverage
+black
+mypy
+isort
+flake8
