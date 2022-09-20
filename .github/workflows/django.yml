@@ -30,7 +30,7 @@ jobs:
         python manage.py test
 
     - name: Django Coverage action
-      uses: actions/python-django-coverage-github-action@0.9
+      uses: actions/python-django-coverage-github-action
       with:
         django-app: 'travel_budget'
         minimum-coverage: '100'
