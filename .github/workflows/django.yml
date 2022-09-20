@@ -28,3 +28,9 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+
+    - name: Django Coverage action
+    uses: actions/python-django-coverage-gitHub-action@0.9
+    with:
+      django-app: 'travel_budget'
+      minimum-coverage: '100'
