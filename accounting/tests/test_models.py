@@ -14,9 +14,7 @@ class BudgetTests(TestCase):
 
     def test_budget_default_name(self) -> None:
         budget = Budget.objects.create()
-        assert_that(
-            budget.name, contains_string(timezone.now().strftime("%m/%d/%Y"))
-        )
+        assert_that(budget.name, contains_string(timezone.now().strftime("%m/%d/%Y")))
 
 
 class ExpenseTests(TestCase):

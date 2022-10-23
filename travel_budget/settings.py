@@ -21,9 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-u#0=7^w93bx*pa5c@21(&ugb7)p2o4d3wmsemmh+#a@+ca5x_d"
-)
+SECRET_KEY = "django-insecure-u#0=7^w93bx*pa5c@21(&ugb7)p2o4d3wmsemmh+#a@+ca5x_d"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "crispy_forms",
     "accounting",
     "rest_framework",
     "www",
@@ -104,6 +103,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+    {
+        "NAME": "validtors.PasswordValidator",
+    },
 ]
 
 
@@ -124,7 +126,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "www/static"),
 ]
 
 # Default primary key field type
