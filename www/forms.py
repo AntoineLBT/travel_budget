@@ -13,10 +13,11 @@ def make_login_form():
             self.helper = helper.FormHelper()
             self.helper.form_id = "login-form"
             self.helper.form_method = "post"
+            # self.helper.form_class = "form-control"
             self.helper.layout = Layout(
                 "email",
                 "password",
-                Submit("Se connecter", "se connecter"),
+                Submit("connect", "Se connecter", css_class="mt-2"),
             )
 
     return LoginForm
