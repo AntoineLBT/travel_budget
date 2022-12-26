@@ -1,8 +1,9 @@
 from typing import Any, Dict
 
-from accounts.models import User
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
+
+from accounts.models import User
 
 from .forms import make_login_form, make_registration_form
 

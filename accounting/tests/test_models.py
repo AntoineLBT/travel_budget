@@ -12,10 +12,6 @@ class BudgetTests(TestCase):
         budget = Budget.objects.create()
         assert_that(budget, is_(instance_of(Budget)))
 
-    def test_budget_default_name(self) -> None:
-        budget = Budget.objects.create()
-        assert_that(budget.name, contains_string(timezone.now().strftime("%m/%d/%Y")))
-
 
 class ExpenseTests(TestCase):
     def test_expense_model(self) -> None:
