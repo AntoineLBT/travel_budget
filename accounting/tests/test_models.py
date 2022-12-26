@@ -1,8 +1,7 @@
 from datetime import date
 
 from django.test import TestCase
-from django.utils import timezone
-from hamcrest import assert_that, contains_string, instance_of, is_
+from hamcrest import assert_that, instance_of, is_
 
 from ..models import Budget, Expense
 
