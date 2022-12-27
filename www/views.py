@@ -1,14 +1,15 @@
 from typing import Any, Dict
 
-from accounts.models import User
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
+
+from accounts.models import User
 
 from .forms import make_login_form, make_registration_form
 
 
-class HomeView(TemplateView):
-    template_name: str = "home.html"
+class DashboardView(TemplateView):
+    template_name: str = "dashboard.html"
 
 
 class LoginView(FormView):
@@ -23,7 +24,7 @@ class LoginView(FormView):
         return context
 
     def get_success_url(self) -> str:
-        return reverse("home")
+        return reverse("dashboard")
 
 
 class RegistrationView(FormView):
@@ -42,3 +43,7 @@ class RegistrationView(FormView):
 
     def get_success_url(self) -> str:
         return reverse("login")
+
+
+class ProfileView(TemplateView):
+    template_name: str = "profile.html"
