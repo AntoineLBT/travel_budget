@@ -23,9 +23,6 @@ class LoginView(FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["form"] = make_login_form()
-        import ipdb
-
-        ipdb.set_trace()
         return context
 
     def form_valid(self, form):
