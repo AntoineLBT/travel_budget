@@ -1,5 +1,7 @@
 from typing import Any, Dict
 
+from django.contrib.auth import authenticate, login
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
@@ -21,7 +23,30 @@ class LoginView(FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["form"] = make_login_form()
+        import ipdb
+
+        ipdb.set_trace()
         return context
+
+    def form_valid(self, form):
+        email = self.request.POST["email"]
+        user = User.objects.filter(email=email).first()
+        username = user.username if user else None if email else None
+        password = self.request.POST["password"]
+        authenticated_user = authenticate(
+            self.request, username=username, password=password
+        )
+        if authenticated_user:
+            login(request=self.request, user=authenticated_user)
+            return super().form_valid(form)
+        else:
+            form.add_error(
+                "password",
+                error=ValidationError(
+                    "Email or Password wrong, please try again."
+                ),
+            )
+            return super().form_invalid(form)
 
     def get_success_url(self) -> str:
         return reverse("dashboard")
