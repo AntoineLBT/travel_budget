@@ -39,9 +39,7 @@ class LoginView(FormView):
         else:
             form.add_error(
                 "password",
-                error=ValidationError(
-                    "Email or Password wrong, please try again."
-                ),
+                error=ValidationError("Email or Password are wrong, please try again."),
             )
             return super().form_invalid(form)
 

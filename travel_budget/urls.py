@@ -27,4 +27,5 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("", include("www.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

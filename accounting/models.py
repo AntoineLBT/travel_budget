@@ -18,6 +18,4 @@ class Expense(models.Model):
     amount: float = models.FloatField(name="amount", default=0)
     label: str = models.CharField(name="label", max_length=255, default="")
     expense_date: date = models.DateField(name="date")
-    budget: Budget = models.ForeignKey(
-        Budget, on_delete=models.CASCADE, default=None
-    )
+    budget: Budget = models.ForeignKey(Budget, on_delete=models.CASCADE, default=None)
