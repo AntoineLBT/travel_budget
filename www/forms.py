@@ -3,12 +3,14 @@ from typing import Any, Dict
 from crispy_forms import helper
 from crispy_forms.layout import Layout, Submit
 from django import forms
+from django.contrib.auth import authenticate
 
 from accounts.models import User
 
 
-def make_login_form() -> forms.Form:
+def make_login_form(request) -> forms.Form:
     class LoginForm(forms.Form):
+
         email: str = forms.EmailField(max_length=255, required=True)
         password: str = forms.CharField(widget=forms.PasswordInput(), required=True)
 
@@ -17,22 +19,24 @@ def make_login_form() -> forms.Form:
             self.helper = helper.FormHelper()
             self.helper.form_id = "login-form"
             self.helper.form_method = "post"
-            # self.helper.form_class = "form-control"
             self.helper.layout = Layout(
                 "email",
                 "password",
                 Submit("connect", "Connect", css_class="mt-2"),
             )
 
-        # def clean(self) -> Dict[str, Any]:
-        #     cleaned_data = super().clean()
-
-        #     if cleaned_data["password"] != "admin":
-        #         import ipdb
-
-        #         ipdb.set_trace()
-        #         raise forms.ValidationError("Passwords doesn't match")
-        #     return cleaned_data
+        def clean(self) -> Dict[str, Any]:
+            cleaned_data = super().clean()
+            user = User.objects.filter(email=cleaned_data["email"])
+            username = user.first().username if user else None
+            authenticated_user = authenticate(
+                request=request,
+                username=username,
+                password=cleaned_data["password"],
+            )
+            if authenticated_user is None:
+                raise forms.ValidationError("Password or/and email doesn't match")
+            return cleaned_data
 
     return LoginForm
 
