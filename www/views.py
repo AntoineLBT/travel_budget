@@ -53,3 +53,11 @@ class RegistrationView(FormView):
 
 class ProfileView(TemplateView):
     template_name: str = "profile.html"
+
+
+class CreateOrJoinTripView(TemplateView):
+    template_name: str = "create_or_join_trip.html"
+
+
+class CreateTripView(FormView):
+    ...
