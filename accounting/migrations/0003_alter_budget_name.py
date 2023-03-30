@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("accounting", "0002_budget_alter_expense_id_expense_budget"),
     ]

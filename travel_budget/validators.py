@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 class PasswordValidator(object):
     def validate(self, password, user=None):
         if not re.fullmatch(
-            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",  # noqa: E501
             password,
         ):
             raise ValidationError(
@@ -24,5 +24,7 @@ class PasswordValidator(object):
 
     def get_help_text(self):
         return _(
-            "Your password must contain Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+            "Your password must contain Minimum eight characters, at least"
+            "one uppercase letter, one lowercase letter, one number and one"
+            "special character"
         )
