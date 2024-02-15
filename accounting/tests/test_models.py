@@ -3,18 +3,18 @@ from datetime import date
 from django.test import TestCase
 from hamcrest import assert_that, instance_of, is_
 
-from ..models import Budget, Expense
+from ..models import Expense, Trip
 
 
 class BudgetTests(TestCase):
     def test_budget_model(self) -> None:
-        budget = Budget.objects.create()
-        assert_that(budget, is_(instance_of(Budget)))
+        budget = Trip.objects.create()
+        assert_that(budget, is_(instance_of(Trip)))
 
 
 class ExpenseTests(TestCase):
     def test_expense_model(self) -> None:
-        budget = Budget.objects.create()
+        budget = Trip.objects.create()
         expense = Expense.objects.create(
             amount=100, label="Test", date=date(2022, 12, 31), budget=budget
         )
