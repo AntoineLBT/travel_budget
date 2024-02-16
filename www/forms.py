@@ -11,7 +11,9 @@ from accounts.models import User
 def make_login_form(request) -> forms.Form:
     class LoginForm(forms.Form):
         email: str = forms.EmailField(max_length=255, required=True)
-        password: str = forms.CharField(widget=forms.PasswordInput(), required=True)
+        password: str = forms.CharField(
+            widget=forms.PasswordInput(), required=True
+        )
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -34,7 +36,9 @@ def make_login_form(request) -> forms.Form:
                 password=cleaned_data["password"],
             )
             if authenticated_user is None:
-                raise forms.ValidationError("Password or/and email doesn't match")
+                raise forms.ValidationError(
+                    "Password or/and email doesn't match"
+                )
             return cleaned_data
 
     return LoginForm
@@ -61,13 +65,18 @@ def make_registration_form() -> forms.Form:
                 "username",
                 "password",
                 "password_confirmation",
-                Submit("registration", "Create your account", css_class="mt-2"),
+                Submit(
+                    "registration", "Create your account", css_class="mt-2"
+                ),
             )
 
         def clean(self) -> Dict[str, Any]:
             cleaned_data = super().clean()
 
-            if cleaned_data["password"] != cleaned_data["password_confirmation"]:
+            if (
+                cleaned_data["password"]
+                != cleaned_data["password_confirmation"]
+            ):
                 raise forms.ValidationError("Passwords doesn't match")
 
             if User.objects.filter(email=cleaned_data["email"]).exists():
@@ -79,3 +88,26 @@ def make_registration_form() -> forms.Form:
             return cleaned_data
 
     return RegistrationForm
+
+
+def make_trip_form() -> forms.Form:
+    class TripForm(forms.Form):
+        name: str = forms.CharField(max_length=255, required=True)
+        description: str = forms.CharField(
+            max_length=1023, required=False, widget=forms.Textarea
+        )
+        start_date: str = forms.DateField(required=True)
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.helper = helper.FormHelper()
+            self.helper.form_id = "trip-form"
+            self.helper.form_method = "post"
+            self.helper.layout = Layout(
+                "name",
+                "description",
+                "start_date",
+                Submit("create", "Create this trip"),
+            )
+
+    return TripForm

@@ -1,7 +1,13 @@
 from django.urls import path
 
-from .views import (CreateOrJoinTripView, DashboardView, LoginView,
-                    ProfileView, RegistrationView)
+from .views import (
+    CreateOrJoinTripView,
+    CreateTripView,
+    DashboardView,
+    LoginView,
+    ProfileView,
+    RegistrationView,
+)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),
@@ -12,5 +18,10 @@ urlpatterns = [
         "create_or_join_trip",
         CreateOrJoinTripView.as_view(),
         name="create-or-join-trip",
+    ),
+    path(
+        "create_trip",
+        CreateTripView.as_view(),
+        name="create-trip",
     ),
 ]

@@ -2,9 +2,10 @@ from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
+from accounting.models import Trip
 from accounts.models import User
 
-from .forms import make_login_form, make_registration_form
+from .forms import make_login_form, make_registration_form, make_trip_form
 
 
 class DashboardView(TemplateView):
@@ -60,4 +61,19 @@ class CreateOrJoinTripView(TemplateView):
 
 
 class CreateTripView(FormView):
-    ...
+    template_name: str = "create_trip.html"
+
+    def get_form_class(self):
+        return make_trip_form()
+
+    def form_valid(self, form):
+        Trip.objects.create(
+            name=form.cleaned_data["name"],
+            description=form.cleaned_data["description"],
+            start_date=form.cleaned_data["start_date"],
+            owner=User.objects.get(email=self.request.user.email),
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse("dashboard")
