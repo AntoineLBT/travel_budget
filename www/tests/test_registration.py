@@ -3,8 +3,7 @@ from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
 from accounts.models import User
-
-from .fixtures import UserFixtures
+from accounts.tests.fixtures import UserFixtures
 
 
 class RegistrationPageTests(TestCase, UserFixtures):
