@@ -83,7 +83,7 @@ class RegistrationPageTests(TestCase, UserFixtures):
     def test_registration_different_password(self) -> None:
         """
         Given a registration form
-        When I same two different password
+        When I send two different password
         Then it return the same page with an error message
         and no user has been created
         """
@@ -107,3 +107,29 @@ class RegistrationPageTests(TestCase, UserFixtures):
             str(page.content),
             contains_string("Passwords doesn&#x27;t match"),
         )
+
+    def test_registration_no_username(self) -> None:
+        """
+        Given a registration form
+        When I register a user without username
+        Then it return the login page and the user has been created with
+            a username containing the prefix of email
+        """
+        assert_that(User.objects.count(), is_(0))
+
+        username = "toto"
+
+        page = self.client.post(
+            reverse("registration"),
+            data={
+                "email": f"{username}@email.com",
+                "username": "",
+                "password": "toto1234",
+                "password_confirmation": "toto1234",
+            },
+            follow=True,
+        )
+
+        assert_that(page.wsgi_request.path, is_("/login"))
+        assert_that(User.objects.count(), is_(1))
+        assert_that(User.objects.first().username, is_(username))
