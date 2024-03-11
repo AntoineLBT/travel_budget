@@ -79,3 +79,26 @@ def make_registration_form() -> forms.Form:
             return cleaned_data
 
     return RegistrationForm
+
+
+def make_trip_form() -> forms.Form:
+    class TripForm(forms.Form):
+        name: str = forms.CharField(max_length=255, required=True)
+        description: str = forms.CharField(
+            max_length=1023, required=False, widget=forms.Textarea
+        )
+        start_date: str = forms.DateField(required=True)
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.helper = helper.FormHelper()
+            self.helper.form_id = "trip-form"
+            self.helper.form_method = "post"
+            self.helper.layout = Layout(
+                "name",
+                "description",
+                "start_date",
+                Submit("create", "Create this trip"),
+            )
+
+    return TripForm

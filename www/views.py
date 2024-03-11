@@ -1,13 +1,17 @@
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LogoutView
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
+from accounting.models import Trip
 from accounts.models import User
 
-from .forms import make_login_form, make_registration_form
+from .forms import make_login_form, make_registration_form, make_trip_form
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
+    login_url = "/login"
     template_name: str = "dashboard.html"
 
 
@@ -33,6 +37,11 @@ class LoginView(FormView):
         return reverse("dashboard")
 
 
+class CustomLogoutView(LogoutView):
+    def get_redirect_url(self) -> str:
+        return reverse("login")
+
+
 class RegistrationView(FormView):
     template_name: str = "registration.html"
 
@@ -51,13 +60,28 @@ class RegistrationView(FormView):
         return reverse("login")
 
 
-class ProfileView(TemplateView):
+class ProfileView(LoginRequiredMixin, TemplateView):
     template_name: str = "profile.html"
 
 
-class CreateOrJoinTripView(TemplateView):
+class CreateOrJoinTripView(LoginRequiredMixin, TemplateView):
     template_name: str = "create_or_join_trip.html"
 
 
-class CreateTripView(FormView):
-    ...
+class CreateTripView(LoginRequiredMixin, FormView):
+    template_name: str = "create_trip.html"
+
+    def get_form_class(self):
+        return make_trip_form()
+
+    def form_valid(self, form):
+        Trip.objects.create(
+            name=form.cleaned_data["name"],
+            description=form.cleaned_data["description"],
+            start_date=form.cleaned_data["start_date"],
+            owner=User.objects.get(email=self.request.user.email),
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse("dashboard")

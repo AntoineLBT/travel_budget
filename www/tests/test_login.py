@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
-from .fixtures import UserFixtures
+from accounts.tests.fixtures import UserFixtures
 
 
 class LoginPageTests(TestCase, UserFixtures):
