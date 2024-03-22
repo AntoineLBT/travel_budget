@@ -19,9 +19,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["trips"] = Trip.objects.filter(
-            owner=self.request.user
-        ).order_by("-end_date")
+        context["trips"] = Trip.objects.filter(owner=self.request.user).order_by(
+            "-end_date"
+        )
         context = get_pie_data(context=context)
 
         return context

@@ -61,7 +61,5 @@ def get_pie_data(context: dict):
     context["labels"] = list(total_amount_per_category.keys())
     context["data"] = list(total_amount_per_category.values())
     context["background_color"] = BACKGROUND_COLOR[: len(context["labels"])]
-    context["hover_background_color"] = HOVER_BACKGROUND_COLOR[
-        : len(context["labels"])
-    ]
+    context["hover_background_color"] = HOVER_BACKGROUND_COLOR[: len(context["labels"])]
     return context
