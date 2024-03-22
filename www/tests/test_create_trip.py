@@ -49,6 +49,7 @@ class CreateTripPageTests(TestCase, UserFixtures):
                 "name": trip_name,
                 "description": "Mon premier voyage sur un autre continent",
                 "start_date": "2024-02-25",
+                "end_date": "2024-04-25",
             },
             follow=True,
         )

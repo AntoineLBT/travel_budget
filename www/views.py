@@ -76,10 +76,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     template_name: str = "profile.html"
 
 
-class CreateOrJoinTripView(LoginRequiredMixin, TemplateView):
-    template_name: str = "create_or_join_trip.html"
-
-
 class CreateTripView(LoginRequiredMixin, FormView):
     template_name: str = "create_trip.html"
 
