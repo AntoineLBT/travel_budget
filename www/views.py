@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
@@ -13,6 +15,13 @@ from .forms import make_login_form, make_registration_form, make_trip_form
 class DashboardView(LoginRequiredMixin, TemplateView):
     login_url = "/login"
     template_name: str = "dashboard.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["trips"] = Trip.objects.filter(
+            owner=self.request.user
+        ).order_by("-end_date")
+        return context
 
 
 class LoginView(FormView):
@@ -79,6 +88,7 @@ class CreateTripView(LoginRequiredMixin, FormView):
             name=form.cleaned_data["name"],
             description=form.cleaned_data["description"],
             start_date=form.cleaned_data["start_date"],
+            end_date=form.cleaned_data["end_date"],
             owner=User.objects.get(email=self.request.user.email),
         )
         return super().form_valid(form)
