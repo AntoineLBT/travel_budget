@@ -3,7 +3,7 @@
 
 {% block body %}
 <!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
+<div class="d-sm-flex align-items-center justify-content-between mb-4 mt-4">
     <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
 </div>
 
@@ -23,7 +23,7 @@
                                 <b>{{ trip.name }}</b><br>
                                 starting : {{ trip.start_date }}<br>
                                 ending : {{ trip.end_date }}<br>
-                                Total expenses : {{ trip.total_expenses }}<br>
+                                Total expenses : {{ trip.total_expenses }}€<br>
                             </div>
                             <div class="col-auto">
                                 <a href="#" class="btn btn-success btn-icon-split">
@@ -88,7 +88,7 @@
     <div class="col-6">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">General expenses</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Expenses per category</h6>
             </div>
             <div class="card-body">
                 <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
