@@ -8,6 +8,7 @@ from django.views.generic import FormView, TemplateView
 
 from accounting.models import Trip
 from accounts.models import User
+from www.utility import get_pie_data
 
 from .forms import make_login_form, make_registration_form, make_trip_form
 
@@ -18,9 +19,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["trips"] = Trip.objects.filter(owner=self.request.user).order_by(
-            "-end_date"
-        )
+        context["trips"] = Trip.objects.filter(
+            owner=self.request.user
+        ).order_by("-end_date")
+        context = get_pie_data(context=context)
+
         return context
 
 

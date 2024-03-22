@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_tags %}
 
 {% block body %}
 <!-- Page Heading -->
@@ -87,18 +88,60 @@
     <div class="col-6">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Trips</h6>
+                <h6 class="m-0 font-weight-bold text-primary">General expenses</h6>
             </div>
-            
             <div class="card-body">
-                <ul class="list-group">
-                {% for trip in trips %}
-                    <li class="list-group-item {% if trip.is_active %}active{% endif %}" aria-current="true">{{ trip.name }} Starting :{{ trip.start_date }} Ending : {{ trip.end_date }}</li>
-                {% endfor %}
-                </ul>
+                <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                    <canvas id="expensesByCategory" width="699" height="245" style="display: block; width: 699px; height: 245px;" class="chartjs-render-monitor"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    {% for label in labels %}
+                    <span class="mr-2">
+                        <i class="fas fa-circle" style="color:{{background_color|get_color:forloop.counter0}};"></i> {{label}}
+                    </span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+
+
 {% endblock %}
+
+{% block script %}
+<script>
+    var ctx = document.getElementById("expensesByCategory");
+    var expensesByCategory = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+        data: {{ data|safe }},
+        backgroundColor: {{ background_color|safe }},
+        hoverBackgroundColor: {{ hover_background_color|safe }},
+        hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+        backgroundColor: "rgb(255,255,255)",
+        bodyFontColor: "#858796",
+        borderColor: '#dddfeb',
+        borderWidth: 1,
+        xPadding: 15,
+        yPadding: 15,
+        displayColors: false,
+        caretPadding: 10,
+        },
+        legend: {
+        display: false
+        },
+        cutoutPercentage: 80,
+    },
+    });
+</script>
+{% endblock%}
+
