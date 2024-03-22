@@ -36,11 +36,11 @@ class Trip(models.Model):
 
 class Expense(models.Model):
     CATEGORY_CHOICES = [
-        (Category.TRANSPORT, "Transport"),
-        (Category.GROCERY, "Grocery"),
-        (Category.ACTIVITY, "Activity"),
-        (Category.RESTAURANT, "Restaurant"),
-        (Category.ADMINISTRATIVE, "Administrative"),
+        (Category.TRANSPORT.value, "Transport"),
+        (Category.GROCERY.value, "Grocery"),
+        (Category.ACTIVITY.value, "Activity"),
+        (Category.RESTAURANT.value, "Restaurant"),
+        (Category.ADMINISTRATIVE.value, "Administrative"),
     ]
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
     amount: float = models.FloatField(name="amount", default=0)
