@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms import helper
 from crispy_forms.layout import Layout, Submit
 from django import forms
@@ -88,8 +89,12 @@ def make_trip_form() -> forms.Form:
         description: str = forms.CharField(
             max_length=1023, required=False, widget=forms.Textarea
         )
-        start_date: str = forms.DateField(required=True)
-        end_date: str = forms.DateField(required=True)
+        start_date: str = forms.DateField(
+            required=True, widget=forms.DateInput(attrs={"type": "date"})
+        )
+        end_date: str = forms.DateField(
+            required=True, widget=forms.DateInput(attrs={"type": "date"})
+        )
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -97,10 +102,10 @@ def make_trip_form() -> forms.Form:
             self.helper.form_id = "trip-form"
             self.helper.form_method = "post"
             self.helper.layout = Layout(
-                "name",
+                FloatingField("name"),
                 "description",
-                "start_date",
-                "end_date",
+                FloatingField("start_date"),
+                FloatingField("end_date"),
                 Submit("create", "Create this trip", css_class="mt-2"),
             )
 
