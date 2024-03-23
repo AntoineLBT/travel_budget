@@ -14,7 +14,7 @@
                 <h5 class="card-title">Trips summary</h5>
                 <ul class="list-group">
                     {% for trip in trips %}
-                    <li class="list-group-item {% if trip.is_active %}active{% endif %}" aria-current="true">
+                    <li class="list-group-item" aria-current="true">
                         <div class="row">
                             <div class="col">
                                 <b>{{ trip.name }}</b><br>

@@ -9,6 +9,7 @@ class Action:
     link: str
     name: str
     icon: str
+    path: str
 
 
 @dataclass
@@ -19,8 +20,12 @@ class Section:
 def sidebar(request):
     main_section = Section()
 
-    dashboard = Action(link=reverse("dashboard"), name="Dashboard", icon="bi-grid")
-    profile = Action(link=reverse("profile"), name="Profile", icon="bi-person")
+    dashboard = Action(
+        link=reverse("dashboard"), name="Dashboard", icon="bi-grid", path="/dashboard"
+    )
+    profile = Action(
+        link=reverse("profile"), name="Profile", icon="bi-person", path="/profile"
+    )
 
     main_section.actions.append(dashboard)
     main_section.actions.append(profile)
