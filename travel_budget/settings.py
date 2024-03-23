@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "debug_toolbar",
     "crispy_forms",
+    "crispy_bootstrap5",
     "accounts",
     "accounting",
     "rest_framework",
@@ -142,3 +143,8 @@ INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",
 ]
+
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"

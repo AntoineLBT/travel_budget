@@ -19,10 +19,8 @@ class Section:
 def sidebar(request):
     main_section = Section()
 
-    dashboard = Action(
-        link=reverse("dashboard"), name="Dashboard", icon="fa-tachometer-alt"
-    )
-    profile = Action(link=reverse("profile"), name="Profile", icon="fa-user")
+    dashboard = Action(link=reverse("dashboard"), name="Dashboard", icon="bi-grid")
+    profile = Action(link=reverse("profile"), name="Profile", icon="bi-person")
 
     main_section.actions.append(dashboard)
     main_section.actions.append(profile)

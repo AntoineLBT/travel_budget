@@ -3,18 +3,15 @@
 
 {% block body %}
 <!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4 mt-4">
-    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+<div class="pagetitle">
+    <h1>Dashboard</h1>
 </div>
 
 <div class="row">
-    <div class="col-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Trips summary</h6>
-            </div>
-            
+    <div class="col-lg-6">
+        <div class="card">
             <div class="card-body">
+                <h5 class="card-title">Trips summary</h5>
                 <ul class="list-group">
                     {% for trip in trips %}
                     <li class="list-group-item {% if trip.is_active %}active{% endif %}" aria-current="true">
@@ -26,19 +23,21 @@
                                 Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses }}€{% else %}---{% endif %}<br>
                             </div>
                             <div class="col-auto">
-                                <a href="#" class="btn btn-success btn-icon-split">
-                                    <span class="icon text-white-50">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </span>
-                                    <span class="text">Consult</span>
-                                </a>
+                                <div class="d-flex justify-content-end">
+                                    <a href="#" class="btn btn-success">
+                                        <span class="icon fs-5">
+                                            <i class="bi bi-eye"></i>
+                                        </span>
+                                    </a>
+                                </div>
                                 <div class="my-2"></div>
-                                <a href="#" class="btn btn-danger btn-icon-split">
-                                    <span class="icon text-white-50">
-                                        <i class="fas fa-trash"></i>
-                                    </span>
-                                    <span class="text">Remove</span>
-                                </a>
+                                <div class="d-flex justify-content-end">
+                                    <a href="#" class="btn btn-danger">
+                                        <span class="icon fs-5">
+                                            <i class="bi bi-trash"></i>
+                                        </span>
+                                    </a>
+                                </div>
                             </div>
                             
                         </div>
@@ -46,102 +45,58 @@
                     {% endfor %}
                 </ul>
                 <div class="row mt-2">
-                    <div class="col-xl-6 col-md-6">
-                        <a class="btn btn-block" href="/create_trip">
-                            <div class="card border-left-primary shadow">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        
-                                        <div class="col mr-2">
-                                            <div class="text font-weight-bold text-primary text-uppercase mb-1">
-                                                Create your trip</div>
-                                            </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-plus fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                    <div class="col-6">
+                        <div class="d-grid gap-2 m-3">
+                            <a class="btn btn-outline-primary" href="/create_trip">
+                                <i class="bi bi-plus-lg me-1"></i>
+                                <text class="text font-weight-bold text-uppercase mb-1">
+                                    Create your trip
+                                </text>
+                            </a>
+                        </div>  
                     </div>
-                    <div class="col-xl-6 col-md-6">
-                        <a class="btn btn-block" href="#">
-                            <div class="card border-left-primary shadow">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text font-weight-bold text-primary text-uppercase mb-1">
-                                                Join an existing trip</div>
-                                            </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-search fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                    <div class="col-6">
+                        <div class="d-grid gap-2 m-3">
+                            <a class="btn btn-outline-primary" href="/create_trip">
+                                <i class="bi bi-search me-1"></i>
+                                <text class="text font-weight-bold text-uppercase mb-1">
+                                    Join an existing trip
+                                </text>
+                            </a>
+                        </div>  
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Expenses per category</h6>
-            </div>
+    <div class="col-lg-6">
+        <div class="card">
             <div class="card-body">
-                <div class="chart-pie pt-4 pb-2"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-                    <canvas id="expensesByCategory" width="699" height="245" style="display: block; width: 699px; height: 245px;" class="chartjs-render-monitor"></canvas>
-                </div>
-                <div class="mt-4 text-center small">
-                    {% for label in labels %}
-                    <span class="mr-2">
-                        <i class="fas fa-circle" style="color:{{background_color|get_color:forloop.counter0}};"></i> {{label}}
-                    </span>
-                    {% endfor %}
-                </div>
+                <h5 class="card-title">Expenses per category</h5>
+                <canvas id="expensesByCategory" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;" width="1040" height="400"></canvas>          
             </div>
         </div>
     </div>
 </div>
 
-
-
 {% endblock %}
 
 {% block script %}
 <script>
-    var ctx = document.getElementById("expensesByCategory");
-    var expensesByCategory = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ labels|safe }},
-        datasets: [{
-        data: {{ data|safe }},
-        backgroundColor: {{ background_color|safe }},
-        hoverBackgroundColor: {{ hover_background_color|safe }},
-        hoverBorderColor: "rgba(234, 236, 244, 1)",
-        }],
-    },
-    options: {
-        maintainAspectRatio: false,
-        tooltips: {
-        backgroundColor: "rgb(255,255,255)",
-        bodyFontColor: "#858796",
-        borderColor: '#dddfeb',
-        borderWidth: 1,
-        xPadding: 15,
-        yPadding: 15,
-        displayColors: false,
-        caretPadding: 10,
-        },
-        legend: {
-        display: false
-        },
-        cutoutPercentage: 80,
-    },
+    document.addEventListener("DOMContentLoaded", () => {
+      new Chart(document.querySelector('#expensesByCategory'), {
+        type: 'doughnut',
+        data: {
+          labels: {{ labels|safe }},
+          datasets: [{
+            label: 'total',
+            data: {{ data|safe }},
+            backgroundColor: {{ background_color|safe }},
+            hoverOffset: 4
+          }]
+        }
+      });
     });
-</script>
+  </script>  
 {% endblock%}
 
