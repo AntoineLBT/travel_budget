@@ -1,13 +1,13 @@
+from bs4 import BeautifulSoup
 from django.test import Client, TestCase
 from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
 from accounting.models import Trip
-from accounts.tests.fixtures import UserFixtures
 from www.tests import AuthenticatedClient
 
 
-class CreateTripPageTests(TestCase, UserFixtures):
+class CreateTripPageTests(TestCase):
 
     client_class = AuthenticatedClient
 
@@ -60,3 +60,25 @@ class CreateTripPageTests(TestCase, UserFixtures):
         assert result_trip
         assert_that(result_trip.name, is_(trip_name))
         assert_that(result_trip.owner.username, is_(page.wsgi_request.user.username))
+
+    def test_create_trip_date_consistence(self) -> None:
+        """
+        Given a client and invalid date order
+        When I post on the create trip page
+        Then it return the same page with an error
+        """
+        page = self.client.post(
+            reverse("create-trip"),
+            data={
+                "name": "mon premier voyage",
+                "description": "Mon premier voyage sur un autre continent",
+                "start_date": "2024-02-25",
+                "end_date": "2024-01-25",
+            },
+            follow=True,
+        )
+        assert_that(page.wsgi_request.path, is_("/create_trip"))
+        assert_that(
+            BeautifulSoup(page.content, "html.parser").select("[class~=alert]")[0].text,
+            contains_string("Starting date"),
+        )

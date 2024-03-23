@@ -2,7 +2,7 @@ from datetime import date
 from uuid import UUID, uuid4
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import CheckConstraint, F, Q, Sum
 
 from accounts.models import User
 
@@ -15,15 +15,21 @@ class Trip(models.Model):
         name="name",
         max_length=255,
     )
-    description: str = models.TextField(
-        name="description", max_length="1023", default=""
-    )
-    start_date: date = models.DateField(name="start_date", default=date.today)
-    end_date: date = models.DateField(name="end_date", default=date.today)
+    description: str = models.TextField(name="description", max_length=1023, default="")
+    start_date: date = models.DateField(name="start_date")
+    end_date: date = models.DateField(name="end_date")
     owner: User = models.ForeignKey(
         User, on_delete=models.CASCADE, default=None, related_name="trip_owner"
     )
     members: User = models.ManyToManyField(User)
+
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=Q(end_date__gt=F("start_date")),
+                name="end_date_greater_than_start_date",
+            )
+        ]
 
     @property
     def is_active(self) -> bool:

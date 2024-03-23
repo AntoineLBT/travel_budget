@@ -4,6 +4,7 @@ from crispy_forms import helper
 from crispy_forms.layout import Layout, Submit
 from django import forms
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 
 from accounts.models import User
 
@@ -102,5 +103,9 @@ def make_trip_form() -> forms.Form:
                 "end_date",
                 Submit("create", "Create this trip", css_class="mt-2"),
             )
+
+        def clean(self):
+            if self.cleaned_data["start_date"] >= self.cleaned_data["end_date"]:
+                raise ValidationError("Starting date can't be after the ending date")
 
     return TripForm
