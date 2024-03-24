@@ -3,10 +3,11 @@ from typing import Any, Dict
 
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms import helper
-from crispy_forms.layout import Layout, Submit
+from crispy_forms.layout import HTML, Div, Layout, Submit
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from accounting.constants import Category
 from accounting.models import Trip
@@ -24,13 +25,17 @@ def make_login_form(request) -> forms.Form:
             self.helper.form_id = "login-form"
             self.helper.form_method = "post"
             self.helper.layout = Layout(
-                "email",
-                "password",
-                Submit("connect", "Connect"),
+                FloatingField("email"),
+                FloatingField("password"),
+                Div(
+                    Submit("connect", "Connect"),
+                    css_class="d-flex justify-content-center",
+                ),
             )
 
         def clean(self) -> Dict[str, Any]:
             cleaned_data = super().clean()
+            assert cleaned_data
             user = User.objects.filter(email=cleaned_data["email"])
             username = user.first().username if user else None
             authenticated_user = authenticate(
@@ -62,16 +67,19 @@ def make_registration_form() -> forms.Form:
             self.helper.form_id = "registration-form"
             self.helper.form_method = "post"
             self.helper.layout = Layout(
-                "email",
-                "username",
-                "password",
-                "password_confirmation",
-                Submit("registration", "Create your account", css_class="mt-2"),
+                FloatingField("email"),
+                FloatingField("username"),
+                FloatingField("password"),
+                FloatingField("password_confirmation"),
+                Div(
+                    Submit("registration", "Create your account", css_class="mt-2"),
+                    css_class="d-flex justify-content-center",
+                ),
             )
 
         def clean(self) -> Dict[str, Any]:
             cleaned_data = super().clean()
-
+            assert cleaned_data
             if cleaned_data["password"] != cleaned_data["password_confirmation"]:
                 raise forms.ValidationError("Passwords doesn't match")
 
@@ -109,7 +117,11 @@ def make_trip_form() -> forms.Form:
                 "description",
                 FloatingField("start_date"),
                 FloatingField("end_date"),
-                Submit("create", "Create this trip", css_class="mt-2"),
+                Div(
+                    Submit("create", "Create this trip", css_class="me-2"),
+                    HTML('<a class="btn btn-secondary" href="/dashboard">Cancel</a>'),
+                    css_class="d-flex justify-content-center",
+                ),
             )
 
         def clean(self):
@@ -119,8 +131,8 @@ def make_trip_form() -> forms.Form:
     return TripForm
 
 
-def make_create_expense(trip: Trip) -> forms.Form:
-    class CreateExpense(forms.Form):
+def make_expense_form(trip: Trip) -> forms.Form:
+    class ExpenseForm(forms.Form):
 
         amount = forms.DecimalField(required=True)
         label: str = forms.CharField(
@@ -147,7 +159,15 @@ def make_create_expense(trip: Trip) -> forms.Form:
                 FloatingField("label"),
                 FloatingField("expense_date"),
                 "category",
-                Submit("Add", "Add this expense", css_class="mt-2"),
+                Div(
+                    Submit("Add", "Add this expense", css_class="me-2"),
+                    HTML(
+                        f"""<a class="btn btn-secondary" href="""
+                        f"""{reverse('trip-consult', kwargs={"slug":trip.slug})}>"""
+                        f"""Cancel</a>"""
+                    ),
+                    css_class="d-flex justify-content-center",
+                ),
             )
 
         def clean(self):
@@ -162,4 +182,4 @@ def make_create_expense(trip: Trip) -> forms.Form:
                 )
             return self.cleaned_data
 
-    return CreateExpense
+    return ExpenseForm

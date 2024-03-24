@@ -10,8 +10,12 @@ from accounting.models import Expense, Trip
 from accounts.models import User
 from www.utility import get_pie_data
 
-from .forms import (make_create_expense, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_expense_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -111,7 +115,7 @@ class CreateExpenseView(LoginRequiredMixin, FormView):
 
     def get_form_class(self) -> type:
         slug = self.request.path.split("/")[2]
-        return make_create_expense(Trip.objects.get(slug=slug))
+        return make_expense_form(Trip.objects.get(slug=slug))
 
     def get_success_url(self) -> str:
         slug = self.request.path.split("/")[2]
