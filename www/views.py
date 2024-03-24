@@ -10,13 +10,8 @@ from accounting.models import Expense, Trip
 from accounts.models import User
 from www.utility import get_pie_data
 
-from .forms import (
-    make_delete_trip_form,
-    make_expense_form,
-    make_login_form,
-    make_registration_form,
-    make_trip_form,
-)
+from .forms import (make_delete_trip_form, make_expense_form, make_login_form,
+                    make_registration_form, make_trip_form)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

@@ -78,7 +78,7 @@
                     </div>
                     <div class="col-6">
                         <div class="d-grid gap-2 m-3">
-                            <a class="btn btn-outline-primary" href="/create_trip">
+                            <a class="btn btn-outline-primary" href="#">
                                 <i class="bi bi-search me-1"></i>
                                 <text class="text font-weight-bold text-uppercase mb-1">
                                     Join an existing trip
@@ -93,8 +93,15 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Expenses per category</h5>
-                <canvas id="expensesByCategory" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;" width="1040" height="400"></canvas>          
+                <h5 class="card-title">Expenses per category over all your trips</h5>
+                {% if data|any_data %}
+                <canvas id="expensesByCategory" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;" width="1040" height="400"></canvas> 
+                {% else %}
+                <span class="text-center">
+                    <h5>No expense associated</h5>
+                    <p>(Consult a trip to add one)</p>
+                </span>
+                {% endif %}
             </div>
         </div>
     </div>

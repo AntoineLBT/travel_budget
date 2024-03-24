@@ -1,7 +1,6 @@
-from bs4 import BeautifulSoup
 from django.test import TestCase
 from django.urls import reverse
-from hamcrest import assert_that, contains_string, is_
+from hamcrest import assert_that, is_
 
 from accounting.models import Trip
 from accounting.tests.fixtures import TripFixtures
