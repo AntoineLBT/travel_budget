@@ -131,6 +131,15 @@ def make_trip_form() -> forms.Form:
     return TripForm
 
 
+def make_delete_trip_form() -> forms.Form:
+    class DeleteTripForm(forms.ModelForm):
+        class Meta:
+            model = Trip
+            fields = []
+
+    return DeleteTripForm
+
+
 def make_expense_form(trip: Trip) -> forms.Form:
     class ExpenseForm(forms.Form):
 

@@ -11,6 +11,7 @@ from accounts.models import User
 from www.utility import get_pie_data
 
 from .forms import (
+    make_delete_trip_form,
     make_expense_form,
     make_login_form,
     make_registration_form,
@@ -95,6 +96,19 @@ class CreateTripView(LoginRequiredMixin, FormView):
             end_date=form.cleaned_data["end_date"],
             owner=User.objects.get(email=self.request.user.email),
         )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse("dashboard")
+
+
+class DeleteTripView(LoginRequiredMixin, FormView):
+
+    def get_form_class(self):
+        return make_delete_trip_form()
+
+    def form_valid(self, form):
+        Trip.objects.get(slug=self.request.POST["submit"]).delete()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
