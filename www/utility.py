@@ -48,15 +48,13 @@ HOVER_BACKGROUND_COLOR = [
 def get_pie_data(context: dict):
 
     total_amount_per_category = {cat.value: 0 for cat in Category}
-    total_amount = 0
 
     for trip in context["trips"]:
         sum_by_category = trip.expense_set.values("category").annotate(
             sum=Sum("amount")
         )
         for category in sum_by_category:
-            total_amount_per_category[category["category"]] += category["sum"]
-            total_amount += category["sum"]
+            total_amount_per_category[category["category"]] += float(category["sum"])
 
     context["labels"] = list(total_amount_per_category.keys())
     context["data"] = list(total_amount_per_category.values())

@@ -1,8 +1,11 @@
+import random
+import string
 from datetime import date
 from uuid import UUID, uuid4
 
 from django.db import models
 from django.db.models import CheckConstraint, F, Q, Sum
+from django.template.defaultfilters import slugify
 
 from accounts.models import User
 
@@ -22,13 +25,23 @@ class Trip(models.Model):
         User, on_delete=models.CASCADE, default=None, related_name="trip_owner"
     )
     members: User = models.ManyToManyField(User)
+    slug = models.SlugField(blank=True, null=True, unique=True)
+
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = f"{slugify(self.name)}-{self.random_ascii()}"
+        super().save(*args, **kwargs)
+
+    def random_ascii(self) -> str:
+        chars = string.ascii_uppercase + string.digits
+        return "".join(random.choice(chars) for _ in range(4))
 
     class Meta:
         constraints = [
             CheckConstraint(
                 check=Q(end_date__gt=F("start_date")),
                 name="end_date_greater_than_start_date",
-            )
+            ),
         ]
 
     @property
@@ -49,9 +62,9 @@ class Expense(models.Model):
         (Category.ADMINISTRATIVE.value, "Administrative"),
     ]
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
-    amount: float = models.FloatField(name="amount", default=0)
+    amount: float = models.DecimalField(name="amount", decimal_places=2, max_digits=20)
     label: str = models.CharField(name="label", max_length=255, default="")
-    expense_date: date = models.DateField(name="date")
+    expense_date: date = models.DateField(name="expense_date")
     trip: Trip = models.ForeignKey(Trip, on_delete=models.CASCADE, default=None)
     category = models.CharField(
         max_length=len(max([category.value for category in Category], key=len)),

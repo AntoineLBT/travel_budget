@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, Dict
 
 from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -7,6 +8,8 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
+from accounting.constants import Category
+from accounting.models import Trip
 from accounts.models import User
 
 
@@ -114,3 +117,49 @@ def make_trip_form() -> forms.Form:
                 raise ValidationError("Starting date can't be after the ending date")
 
     return TripForm
+
+
+def make_create_expense(trip: Trip) -> forms.Form:
+    class CreateExpense(forms.Form):
+
+        amount = forms.DecimalField(required=True)
+        label: str = forms.CharField(
+            max_length=255,
+            required=True,
+        )
+        expense_date: str = forms.DateField(
+            required=True,
+            widget=forms.DateInput(attrs={"type": "date"}),
+            initial=date.today,
+        )
+        category: str = forms.ChoiceField(
+            choices=[(cat.value, cat.value) for cat in Category]
+        )
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.trip = trip
+            self.helper = helper.FormHelper()
+            self.helper.form_id = "trip-form"
+            self.helper.form_method = "post"
+            self.helper.layout = Layout(
+                FloatingField("amount"),
+                FloatingField("label"),
+                FloatingField("expense_date"),
+                "category",
+                Submit("Add", "Add this expense", css_class="mt-2"),
+            )
+
+        def clean(self):
+            self.cleaned_data["trip"] = self.trip
+            if (
+                self.trip.end_date < self.cleaned_data["expense_date"]
+                or self.cleaned_data["expense_date"] < self.trip.start_date
+            ):
+                raise ValidationError(
+                    f"Expense date must be within the trip date :"
+                    f" {self.trip.start_date} to {self.trip.end_date}"
+                )
+            return self.cleaned_data
+
+    return CreateExpense
