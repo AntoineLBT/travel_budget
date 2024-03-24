@@ -106,6 +106,7 @@ def make_trip_form() -> forms.Form:
         end_date: str = forms.DateField(
             required=True, widget=forms.DateInput(attrs={"type": "date"})
         )
+        budget = forms.DecimalField(required=True)
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -117,6 +118,7 @@ def make_trip_form() -> forms.Form:
                 "description",
                 FloatingField("start_date"),
                 FloatingField("end_date"),
+                FloatingField("budget"),
                 Div(
                     Submit("create", "Create this trip", css_class="me-2"),
                     HTML('<a class="btn btn-secondary" href="/dashboard">Cancel</a>'),

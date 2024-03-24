@@ -6,6 +6,9 @@ BACKGROUND_COLOR = [
     "#fd7c7c",
     "#fdfd7c",
     "#7cfd7c",
+    "#fc7cfd",
+    "#fdee7c",
+    "#ee7cfd",
     "#f6fd7c",
     "#7cfd83",
     "#7cf6fd",
@@ -16,11 +19,8 @@ BACKGROUND_COLOR = [
     "#7f7cfd",
     "#fd7cfa",
     "#7c7dfd",
-    "#fc7cfd",
-    "#fd7c7d",
-    "#ee7cfd",
     "#fd7c8b",
-    "#fdee7c",
+    "#fd7cd7",
 ]
 
 HOVER_BACKGROUND_COLOR = [
@@ -45,7 +45,7 @@ HOVER_BACKGROUND_COLOR = [
 ]
 
 
-def get_pie_data(context: dict):
+def get_trips_expenses_data(context: dict):
 
     total_amount_per_category = {cat.value: 0 for cat in Category}
 

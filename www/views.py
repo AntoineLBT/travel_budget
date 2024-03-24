@@ -8,10 +8,15 @@ from django.views.generic import FormView, TemplateView
 
 from accounting.models import Expense, Trip
 from accounts.models import User
-from www.utility import get_pie_data
+from www.utility import get_trips_expenses_data
 
-from .forms import (make_delete_trip_form, make_expense_form, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_delete_trip_form,
+    make_expense_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -23,7 +28,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["trips"] = Trip.objects.filter(owner=self.request.user).order_by(
             "-end_date"
         )
-        context = get_pie_data(context=context)
+        context = get_trips_expenses_data(context=context)
 
         return context
 
@@ -89,6 +94,7 @@ class CreateTripView(LoginRequiredMixin, FormView):
             description=form.cleaned_data["description"],
             start_date=form.cleaned_data["start_date"],
             end_date=form.cleaned_data["end_date"],
+            budget=form.cleaned_data["budget"],
             owner=User.objects.get(email=self.request.user.email),
         )
         return super().form_valid(form)
@@ -115,7 +121,14 @@ class TripView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["trip"] = Trip.objects.filter(owner=self.request.user).first()
+        context["trips"] = Trip.objects.filter(owner=self.request.user)
+        context["trip"] = context["trips"].first()
+        context["budget_completion"] = (
+            (context["trip"].total_expenses * 100) / context["trip"].budget
+            if context["trip"].total_expenses
+            else 0
+        )
+        context = get_trips_expenses_data(context=context)
         return context
 
 

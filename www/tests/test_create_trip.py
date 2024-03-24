@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from bs4 import BeautifulSoup
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -50,6 +52,7 @@ class CreateTripPageTests(TestCase):
                 "description": "Mon premier voyage sur un autre continent",
                 "start_date": "2024-02-25",
                 "end_date": "2024-04-25",
+                "budget": Decimal(1),
             },
             follow=True,
         )
@@ -74,6 +77,7 @@ class CreateTripPageTests(TestCase):
                 "description": "Mon premier voyage sur un autre continent",
                 "start_date": "2024-02-25",
                 "end_date": "2024-01-25",
+                "budget": Decimal(1),
             },
             follow=True,
         )
