@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from typing import Any, Dict, Optional
 
@@ -72,7 +73,7 @@ def make_registration_form() -> forms.Form:
                 FloatingField("password"),
                 FloatingField("password_confirmation"),
                 Div(
-                    Submit("registration", "Create your account", css_class="mt-2"),
+                    Submit("registration", "Sign up", css_class="mt-2"),
                     css_class="d-flex justify-content-center",
                 ),
             )
@@ -80,6 +81,15 @@ def make_registration_form() -> forms.Form:
         def clean(self) -> Dict[str, Any]:
             cleaned_data = super().clean()
             assert cleaned_data
+
+            # Password validation
+            pattern = r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$"
+            if not bool(re.match(pattern, cleaned_data["password"])):
+                raise forms.ValidationError(
+                    """Password requirements : minimum 8 characters,
+                    1 lowercase, 1 uppercase, 1 digits"""
+                )
+
             if cleaned_data["password"] != cleaned_data["password_confirmation"]:
                 raise forms.ValidationError("Passwords doesn't match")
 

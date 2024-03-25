@@ -28,12 +28,12 @@
                 </div>
                 <p><b>Description</b> : {{trip.description}}</p>
                 <div class="row">
-                    <p class="col-6"><b>Total expenses</b> : {% if trip.total_expenses %}{{ trip.total_expenses }}{% else %}0.00{% endif %}€</p>
-                    <p class="col-6"><b>Budget</b> : {{ trip.budget }}€</p>
+                    <p class="col-6"><b>Total expenses</b> : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}{% else %}0.00{% endif %}€</p>
+                    <p class="col-6"><b>Budget</b> : {{ trip.budget|floatformat:2 }}€</p>
                 </div>
                 {% if budget_completion %}
                 <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: {{ budget_completion }}%" aria-valuenow="{{ budget_completion }}" aria-valuemin="0" aria-valuemax="100">{{ budget_completion }}%</div>
+                    <div class="progress-bar" role="progressbar" style="width: {{ budget_completion }}%" aria-valuenow="{{ budget_completion }}" aria-valuemin="0" aria-valuemax="100">{{ budget_completion|floatformat:0 }}%</div>
                 </div>
                 {% endif %}
             </div>
@@ -77,7 +77,7 @@
                 {% for expense in trip.expense_set.all %}
                 <tr>
                     <td scope="row">{{expense.label}}</td>
-                    <td>{{expense.amount}}</td>
+                    <td>{{expense.amount|floatformat:2}}</td>
                     <td>{{expense.category}}</td>
                     <td>{{expense.expense_date}}</td>
                     <td>
