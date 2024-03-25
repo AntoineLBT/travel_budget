@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.test import TestCase
 from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
@@ -37,8 +38,8 @@ class RegistrationPageTests(TestCase, UserFixtures):
             data={
                 "email": "toto@email.com",
                 "username": "toto",
-                "password": "toto1234",
-                "password_confirmation": "toto1234",
+                "password": "Toto1234",
+                "password_confirmation": "Toto1234",
             },
             follow=True,
         )
@@ -58,8 +59,8 @@ class RegistrationPageTests(TestCase, UserFixtures):
         data = {
             "email": "toto@email.com",
             "username": "toto",
-            "password": "toto1234",
-            "password_confirmation": "toto1234",
+            "password": "Toto1234",
+            "password_confirmation": "Toto1234",
         }
 
         assert_that(User.objects.count(), is_(0))
@@ -95,7 +96,7 @@ class RegistrationPageTests(TestCase, UserFixtures):
             data={
                 "email": "toto@email.com",
                 "username": "toto",
-                "password": "toto1234",
+                "password": "Toto1234",
                 "password_confirmation": "toto5678",
             },
             follow=True,
@@ -124,8 +125,8 @@ class RegistrationPageTests(TestCase, UserFixtures):
             data={
                 "email": f"{username}@email.com",
                 "username": "",
-                "password": "toto1234",
-                "password_confirmation": "toto1234",
+                "password": "Toto1234",
+                "password_confirmation": "Toto1234",
             },
             follow=True,
         )
@@ -133,3 +134,28 @@ class RegistrationPageTests(TestCase, UserFixtures):
         assert_that(page.wsgi_request.path, is_("/login"))
         assert_that(User.objects.count(), is_(1))
         assert_that(User.objects.first().username, is_(username))
+
+    def test_registration_password_validation(self) -> None:
+        """
+        Given a registration form
+        When I register a user without username
+        Then it return the login page and the user has been created with
+            a username containing the prefix of email
+        """
+
+        page = self.client.post(
+            reverse("registration"),
+            data={
+                "email": "toto@email.com",
+                "username": "toto",
+                "password": "toto",
+                "password_confirmation": "toto",
+            },
+            follow=True,
+        )
+
+        assert_that(page.wsgi_request.path, is_("/registration"))
+        assert_that(
+            BeautifulSoup(page.content, "html.parser").select("[class~=alert]")[0].text,
+            contains_string("Password"),
+        )
