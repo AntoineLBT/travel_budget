@@ -8,11 +8,11 @@ from hamcrest import assert_that, contains_string, is_
 
 from accounting.constants import Category
 from accounting.models import Expense
-from accounting.tests.fixtures import TripFixtures
+from accounting.tests.fixtures import AccountingFixtures
 from www.tests import AuthenticatedClient
 
 
-class CreateExpensePageTests(TestCase, TripFixtures):
+class ExpensePageTests(TestCase, AccountingFixtures):
 
     client_class = AuthenticatedClient
 
@@ -25,7 +25,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         dummy_client = Client()
 
         page = dummy_client.get(
-            reverse("trip-create-expense", kwargs={"slug": self.any_trip().slug})
+            reverse("create-expense", kwargs={"slug": self.any_trip().slug})
         )
 
         assert_that(page.status_code, is_(302))
@@ -39,7 +39,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         """
 
         page = self.client.get(
-            reverse("trip-create-expense", kwargs={"slug": self.any_trip().slug})
+            reverse("create-expense", kwargs={"slug": self.any_trip().slug})
         )
 
         assert_that(page.status_code, is_(200))
@@ -56,7 +56,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         expense_label = "Réparation voiture"
         trip = self.any_trip()
         page = self.client.post(
-            reverse("trip-create-expense", kwargs={"slug": trip.slug}),
+            reverse("create-expense", kwargs={"slug": trip.slug}),
             data={
                 "amount": Decimal(500.23),
                 "label": expense_label,
@@ -67,7 +67,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         )
         assert_that(
             page.url,
-            is_(reverse_lazy("trip-consult", kwargs={"slug": trip.slug})),
+            is_(reverse_lazy("consult-trip", kwargs={"slug": trip.slug})),
         )
         assert_that(Expense.objects.count(), is_(1))
         result_expense = Expense.objects.first()
@@ -77,7 +77,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
 
     def test_create_expense_date_consistence(self) -> None:
         """
-        Given a client and expense date not within the trip
+        Given a client and an expense date not within the trip
         When I post on the create expense page
         Then it return the same page with an error
         """
@@ -90,7 +90,7 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         trip.end_date = date(2024, 3, 31)
         trip.save()
         page = self.client.post(
-            reverse("trip-create-expense", kwargs={"slug": trip.slug}),
+            reverse("create-expense", kwargs={"slug": trip.slug}),
             data={
                 "amount": Decimal(500.23),
                 "label": expense_label,
@@ -101,9 +101,17 @@ class CreateExpensePageTests(TestCase, TripFixtures):
         )
         assert_that(
             page.wsgi_request.path,
-            is_(reverse("trip-create-expense", kwargs={"slug": trip.slug})),
+            is_(reverse("create-expense", kwargs={"slug": trip.slug})),
         )
         assert_that(
             BeautifulSoup(page.content, "html.parser").select("[class~=alert]")[0].text,
             contains_string("Expense date"),
         )
+
+    def test_edit_expense_initial(self) -> None:
+        """
+        Given a client and an expense
+        When I get the edit expense page
+        Then field are already filled
+        """
+        ...

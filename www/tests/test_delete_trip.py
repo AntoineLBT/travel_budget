@@ -3,11 +3,11 @@ from django.urls import reverse
 from hamcrest import assert_that, is_
 
 from accounting.models import Trip
-from accounting.tests.fixtures import TripFixtures
+from accounting.tests.fixtures import AccountingFixtures
 from www.tests import AuthenticatedClient
 
 
-class DeleteTripPageTests(TestCase, TripFixtures):
+class DeleteTripPageTests(TestCase, AccountingFixtures):
 
     client_class = AuthenticatedClient
 

@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import (CreateExpenseView, CreateTripView, CustomLogoutView,
-                    DashboardView, DeleteTripView, LoginView, ProfileView,
-                    RegistrationView, TripView)
+from .views import (CreateTripView, CustomLogoutView, DashboardView,
+                    DeleteExpenseView, DeleteTripView, ExpenseView, LoginView,
+                    ProfileView, RegistrationView, TripView)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),
@@ -20,10 +20,20 @@ urlpatterns = [
         DeleteTripView.as_view(),
         name="delete-trip",
     ),
-    path("trip/<slug:slug>/consult", TripView.as_view(), name="trip-consult"),
+    path("trip/<slug:slug>/consult", TripView.as_view(), name="consult-trip"),
     path(
         "trip/<slug:slug>/create_expense",
-        CreateExpenseView.as_view(),
-        name="trip-create-expense",
+        ExpenseView.as_view(),
+        name="create-expense",
+    ),
+    path(
+        "trip/<slug:slug>/edit_expense/<uuid:uuid>",
+        ExpenseView.as_view(),
+        name="edit-expense",
+    ),
+    path(
+        "trip/<slug:slug>/delete_expense/<uuid:uuid>",
+        DeleteExpenseView.as_view(),
+        name="delete-expense",
     ),
 ]

@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from crispy_forms import helper
@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from accounting.constants import Category
-from accounting.models import Trip
+from accounting.models import Expense, Trip
 from accounts.models import User
 
 
@@ -142,10 +142,12 @@ def make_delete_trip_form() -> forms.Form:
     return DeleteTripForm
 
 
-def make_expense_form(trip: Trip) -> forms.Form:
+def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Form:
     class ExpenseForm(forms.Form):
 
-        amount = forms.DecimalField(required=True)
+        amount = forms.DecimalField(
+            required=True, initial=expense.amount if expense else None
+        )
         label: str = forms.CharField(
             max_length=255,
             required=True,
@@ -156,12 +158,13 @@ def make_expense_form(trip: Trip) -> forms.Form:
             initial=date.today,
         )
         category: str = forms.ChoiceField(
-            choices=[(cat.value, cat.value) for cat in Category]
+            choices=[(cat.value, cat.name) for cat in Category]
         )
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.trip = trip
+            self.expense = expense
             self.helper = helper.FormHelper()
             self.helper.form_id = "trip-form"
             self.helper.form_method = "post"
@@ -174,15 +177,21 @@ def make_expense_form(trip: Trip) -> forms.Form:
                     Submit("Add", "Add this expense", css_class="me-2"),
                     HTML(
                         f"""<a class="btn btn-secondary" href="""
-                        f"""{reverse('trip-consult', kwargs={"slug":trip.slug})}>"""
+                        f"""{reverse('consult-trip', kwargs={"slug":trip.slug})}>"""
                         f"""Cancel</a>"""
                     ),
                     css_class="d-flex justify-content-center",
                 ),
             )
+            if expense:
+                self.fields["amount"].initial = expense.amount
+                self.fields["label"].initial = expense.label
+                self.fields["expense_date"].initial = expense.expense_date
+                self.fields["category"].initial = expense.category
 
         def clean(self):
             self.cleaned_data["trip"] = self.trip
+            self.cleaned_data["id"] = self.expense.id if expense else None
             if (
                 self.trip.end_date < self.cleaned_data["expense_date"]
                 or self.cleaned_data["expense_date"] < self.trip.start_date
@@ -194,3 +203,12 @@ def make_expense_form(trip: Trip) -> forms.Form:
             return self.cleaned_data
 
     return ExpenseForm
+
+
+def make_delete_expense_form() -> forms.Form:
+    class DeleteExpenseForm(forms.ModelForm):
+        class Meta:
+            model = Trip
+            fields = []
+
+    return DeleteExpenseForm

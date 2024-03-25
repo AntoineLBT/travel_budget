@@ -10,13 +10,9 @@ from accounting.models import Expense, Trip
 from accounts.models import User
 from www.utility import get_trips_expenses_data
 
-from .forms import (
-    make_delete_trip_form,
-    make_expense_form,
-    make_login_form,
-    make_registration_form,
-    make_trip_form,
-)
+from .forms import (make_delete_expense_form, make_delete_trip_form,
+                    make_expense_form, make_login_form, make_registration_form,
+                    make_trip_form)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -120,8 +116,9 @@ class TripView(LoginRequiredMixin, TemplateView):
     template_name: str = "trip.html"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        slug = self.request.path.split("/")[2]
         context = super().get_context_data(**kwargs)
-        context["trips"] = Trip.objects.filter(owner=self.request.user)
+        context["trips"] = Trip.objects.filter(owner=self.request.user, slug=slug)
         context["trip"] = context["trips"].first()
         context["budget_completion"] = (
             (context["trip"].total_expenses * 100) / context["trip"].budget
@@ -132,23 +129,45 @@ class TripView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CreateExpenseView(LoginRequiredMixin, FormView):
+class ExpenseView(LoginRequiredMixin, FormView):
     template_name: str = "create_expense.html"
 
     def get_form_class(self) -> type:
         slug = self.request.path.split("/")[2]
-        return make_expense_form(Trip.objects.get(slug=slug))
+        if "edit_expense" in self.request.path:
+            expense_id = self.request.path.split("/")[4]
+            expense = Expense.objects.get(id=expense_id)
+        else:
+            expense = None
+        return make_expense_form(trip=Trip.objects.get(slug=slug), expense=expense)
 
     def get_success_url(self) -> str:
         slug = self.request.path.split("/")[2]
-        return reverse("trip-consult", kwargs={"slug": slug})
+        return reverse("consult-trip", kwargs={"slug": slug})
 
     def form_valid(self, form):
-        Expense.objects.create(
-            amount=form.cleaned_data["amount"],
-            label=form.cleaned_data["label"],
-            expense_date=form.cleaned_data["expense_date"],
-            trip=form.cleaned_data["trip"],
-            category=form.cleaned_data["category"],
+        Expense.objects.update_or_create(
+            id=form.cleaned_data["id"],
+            defaults={
+                "amount": form.cleaned_data["amount"],
+                "label": form.cleaned_data["label"],
+                "expense_date": form.cleaned_data["expense_date"],
+                "trip": form.cleaned_data["trip"],
+                "category": form.cleaned_data["category"],
+            },
         )
         return super().form_valid(form)
+
+
+class DeleteExpenseView(LoginRequiredMixin, FormView):
+
+    def get_form_class(self):
+        return make_delete_expense_form()
+
+    def form_valid(self, form):
+        Expense.objects.get(id=self.request.POST["id"]).delete()
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        slug = self.request.path.split("/")[2]
+        return reverse("consult-trip", kwargs={"slug": slug})

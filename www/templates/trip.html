@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load custom_tags %}
 {% block body %}
 <!-- Page Heading -->
 <div class="row mb-2">
@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="col-lg-6 d-flex justify-content-end">
-        <a href="{% url 'trip-create-expense' slug=trip.slug %}" class="btn btn-outline-primary">
+        <a href="{% url 'create-expense' slug=trip.slug %}" class="btn btn-outline-primary">
             <span class="icon fs-5">
                 <i class="bi bi-plus"></i>
                 Expense
@@ -24,7 +24,7 @@
                 <h5 class="card-title">Information</h5>
                 <div class="row">
                     <p class="col-6"><b>Starting date</b> : {{trip.start_date}}</p>
-                    <p class="col-6"><b>Ending date</b> : {{trip.start_date}}</p>
+                    <p class="col-6"><b>Ending date</b> : {{trip.end_date}}</p>
                 </div>
                 <p><b>Description</b> : {{trip.description}}</p>
                 <div class="row">
@@ -43,7 +43,13 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Expenses per category</h5>
+                {% if data|any_data %}
                 <canvas id="expensesPerCategory" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;" width="1040" height="400"></canvas> 
+                {% else %}
+                <span class="text-center">
+                    <h5>No expense associated yet</h5>
+                </span>
+                {% endif %} 
             </div>
         </div>
     </div>
@@ -75,14 +81,14 @@
                     <td>{{expense.category}}</td>
                     <td>{{expense.expense_date}}</td>
                     <td>
-                        <a href="{% url 'trip-consult' slug=trip.slug %}" class="btn btn-outline-primary">
+                        <a href="{% url 'edit-expense' slug=trip.slug uuid=expense.id %}" class="btn btn-outline-primary">
                             <span class="icon">
                                 <i class="bi bi-pencil-square"></i>
                             </span>
                         </a>
                     </td>
                     <td>
-                        <a href="{% url 'trip-consult' slug=trip.slug %}" class="btn btn-outline-secondary">
+                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{expense.id}}_modal">
                             <span class="icon">
                                 <i class="bi bi-trash"></i>
                             </span>
@@ -90,6 +96,28 @@
                     </td>
                 
                 </tr>
+
+                {% comment %} Expense delete modal {% endcomment %}
+                <div class="modal fade" id="delete_{{expense.id}}_modal" tabindex="-1" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete an expense</h5>
+                            </div>
+                        <div class="modal-body">
+                            Do you confirm ? 
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            <form action="{% url 'delete-expense' slug=trip.slug uuid=expense.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" name="id" value="{{ expense.id }}" class="btn btn-danger">Yes</button>
+                            </form>
+                            
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 {% endfor %}
               </tbody>
             </table>
