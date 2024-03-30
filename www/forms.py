@@ -104,7 +104,7 @@ def make_registration_form() -> forms.Form:
     return RegistrationForm
 
 
-def make_trip_form() -> forms.Form:
+def make_trip_form(trip: Optional[Trip] = None) -> forms.Form:
     class TripForm(forms.Form):
         name: str = forms.CharField(max_length=255, required=True)
         description: str = forms.CharField(
@@ -119,6 +119,15 @@ def make_trip_form() -> forms.Form:
         budget = forms.DecimalField(required=True)
 
         def __init__(self, *args, **kwargs):
+
+            submit_text = "Edit this trip" if trip else "Create this trip"
+            cancel_url = (
+                reverse("consult-trip", kwargs={"slug": trip.slug})
+                if trip
+                else reverse("dashboard")
+            )
+            self.trip = trip
+
             super().__init__(*args, **kwargs)
             self.helper = helper.FormHelper()
             self.helper.form_id = "trip-form"
@@ -130,11 +139,17 @@ def make_trip_form() -> forms.Form:
                 FloatingField("end_date"),
                 FloatingField("budget"),
                 Div(
-                    Submit("create", "Create this trip", css_class="me-2"),
-                    HTML('<a class="btn btn-secondary" href="/dashboard">Cancel</a>'),
+                    Submit("create", submit_text, css_class="me-2"),
+                    HTML(f'<a class="btn btn-secondary" href={cancel_url}>Cancel</a>'),
                     css_class="d-flex justify-content-center",
                 ),
             )
+            if self.trip:
+                self.fields["name"].initial = trip.name
+                self.fields["description"].initial = trip.description
+                self.fields["start_date"].initial = trip.start_date
+                self.fields["end_date"].initial = trip.end_date
+                self.fields["budget"].initial = trip.budget
 
         def clean(self):
             if self.cleaned_data["start_date"] >= self.cleaned_data["end_date"]:
@@ -172,6 +187,9 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
         )
 
         def __init__(self, *args, **kwargs):
+
+            submit_text = "Edit this expense" if expense else "Add this expense"
+
             super().__init__(*args, **kwargs)
             self.trip = trip
             self.expense = expense
@@ -184,7 +202,7 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 FloatingField("expense_date"),
                 "category",
                 Div(
-                    Submit("Add", "Add this expense", css_class="me-2"),
+                    Submit("Add", submit_text, css_class="me-2"),
                     HTML(
                         f"""<a class="btn btn-secondary" href="""
                         f"""{reverse('consult-trip', kwargs={"slug":trip.slug})}>"""

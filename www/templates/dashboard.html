@@ -20,7 +20,8 @@
                                 <b>{{ trip.name }}</b><br>
                                 starting : {{ trip.start_date }}<br>
                                 ending : {{ trip.end_date }}<br>
-                                Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{% else %}---{% endif %}<br>
+                                Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{%
+                                else %}---{% endif %}<br>
                             </div>
                             <div class="col-auto">
                                 <div class="d-flex justify-content-end">
@@ -32,35 +33,40 @@
                                 </div>
                                 <div class="my-2"></div>
                                 <div class="d-flex justify-content-end">
-                                    <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete_{{trip.slug}}_modal">
+                                    <a href="#" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#delete_{{trip.slug}}_modal">
                                         <span class="icon fs-5">
                                             <i class="bi bi-trash"></i>
                                         </span>
                                     </a>
                                 </div>
-                                <div class="modal fade" id="delete_{{trip.slug}}_modal" tabindex="-1" style="display: none;" aria-hidden="true">
+                                <div class="modal fade" id="delete_{{trip.slug}}_modal" tabindex="-1"
+                                    style="display: none;" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Delete a trip</h5>
                                             </div>
-                                        <div class="modal-body">
-                                            Removing the trip : <b>{{ trip.name }}</b> implies the suppression of every expenses associated<br>
-                                            Do you confirm ? 
+                                            <div class="modal-body">
+                                                Removing the trip : <b>{{ trip.name }}</b> implies the suppression of
+                                                every expenses associated<br>
+                                                Do you confirm ?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">No</button>
+                                                <form action="{% url 'delete-trip' slug=trip.slug %}" method="post">
+                                                    {% csrf_token %}
+                                                    <button type="submit" name="submit" value="{{ trip.slug }}"
+                                                        class="btn btn-danger">Yes</button>
+                                                </form>
+
+                                            </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                                            <form action="{% url 'delete-trip' slug=trip.slug %}" method="post">
-                                                {% csrf_token %}
-                                                <button type="submit" name="submit" value="{{ trip.slug }}" class="btn btn-danger">Yes</button>
-                                            </form>
-                                            
-                                        </div>
-                                      </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </li>
                     {% endfor %}
@@ -74,7 +80,7 @@
                                     Create your trip
                                 </text>
                             </a>
-                        </div>  
+                        </div>
                     </div>
                     <div class="col-6">
                         <div class="d-grid gap-2 m-3">
@@ -84,7 +90,7 @@
                                     Join an existing trip
                                 </text>
                             </a>
-                        </div>  
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,7 +101,9 @@
             <div class="card-body">
                 <h5 class="card-title">Expenses per category over all your trips</h5>
                 {% if data|any_data %}
-                <canvas id="expensesByCategory" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;" width="1040" height="400"></canvas> 
+                <canvas id="expensesByCategory"
+                    style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 1040px;"
+                    width="1040" height="400"></canvas>
                 {% else %}
                 <span class="text-center">
                     <h5>No expense associated</h5>
@@ -112,19 +120,18 @@
 {% block script %}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-      new Chart(document.querySelector('#expensesByCategory'), {
-        type: 'doughnut',
-        data: {
-          labels: {{ labels|safe }},
-          datasets: [{
+        new Chart(document.querySelector('#expensesByCategory'), {
+            type: 'doughnut',
+            data: {
+                labels: {{ labels| safe }},
+        datasets: [{
             label: 'total',
-            data: {{ data|safe }},
-            backgroundColor: {{ background_color|safe }},
-            hoverOffset: 4
+            data: {{ data| safe }},
+        backgroundColor: {{ background_color| safe }},
+        hoverOffset: 4
           }]
         }
       });
     });
-  </script>  
+</script>
 {% endblock%}
-

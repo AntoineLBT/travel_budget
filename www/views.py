@@ -82,7 +82,12 @@ class CreateTripView(LoginRequiredMixin, FormView):
     template_name: str = "create_trip.html"
 
     def get_form_class(self):
-        return make_trip_form()
+        if "edit" in self.request.path:
+            slug = self.request.path.split("/")[2]
+            trip = Trip.objects.get(slug=slug)
+        else:
+            trip = None
+        return make_trip_form(trip=trip)
 
     def form_valid(self, form):
         Trip.objects.create(
@@ -133,17 +138,17 @@ class ExpenseView(LoginRequiredMixin, FormView):
     template_name: str = "create_expense.html"
 
     def get_form_class(self) -> type:
-        slug = self.request.path.split("/")[2]
+        trip_slug = self.request.path.split("/")[2]
         if "edit_expense" in self.request.path:
             expense_id = self.request.path.split("/")[4]
             expense = Expense.objects.get(id=expense_id)
         else:
             expense = None
-        return make_expense_form(trip=Trip.objects.get(slug=slug), expense=expense)
+        return make_expense_form(trip=Trip.objects.get(slug=trip_slug), expense=expense)
 
     def get_success_url(self) -> str:
-        slug = self.request.path.split("/")[2]
-        return reverse("consult-trip", kwargs={"slug": slug})
+        trip_slug = self.request.path.split("/")[2]
+        return reverse("consult-trip", kwargs={"slug": trip_slug})
 
     def form_valid(self, form):
         Expense.objects.update_or_create(

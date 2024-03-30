@@ -6,10 +6,12 @@ from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
 from accounting.models import Trip
+from accounting.tests.fixtures import AccountingFixtures
+from accounts.models import User
 from www.tests import AuthenticatedClient
 
 
-class CreateTripPageTests(TestCase):
+class CreateTripPageTests(TestCase, AccountingFixtures):
 
     client_class = AuthenticatedClient
 
@@ -85,4 +87,45 @@ class CreateTripPageTests(TestCase):
         assert_that(
             BeautifulSoup(page.content, "html.parser").select("[class~=alert]")[0].text,
             contains_string("Starting date"),
+        )
+
+    def test_edit_trip_initial(self) -> None:
+        """
+        Given a client and a trip
+        When I get the edit trip page
+        Then field are already filled
+        """
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.save()
+
+        page = self.client.get(reverse("edit-trip", kwargs={"slug": trip.slug}))
+        soup = BeautifulSoup(page.content, "html.parser")
+        assert_that(
+            soup.find("form").find("input", attrs={"name": "name"}).attrs["value"],
+            is_(trip.name),
+        )
+        assert_that(
+            soup.find("form")
+            .find("textarea", attrs={"name": "description"})
+            .contents[0],
+            contains_string(trip.description),
+        )
+        assert_that(
+            soup.find("form")
+            .find("input", attrs={"name": "start_date"})
+            .attrs["value"],
+            is_(str(trip.start_date)),
+        )
+        assert_that(
+            soup.find("form").find("input", attrs={"name": "end_date"}).attrs["value"],
+            is_(str(trip.end_date)),
+        )
+        assert_that(
+            float(
+                soup.find("form").find("input", attrs={"name": "budget"}).attrs["value"]
+            ),
+            is_(float(trip.budget)),
         )

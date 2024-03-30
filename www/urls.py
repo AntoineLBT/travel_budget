@@ -21,6 +21,7 @@ urlpatterns = [
         name="delete-trip",
     ),
     path("trip/<slug:slug>/consult", TripView.as_view(), name="consult-trip"),
+    path("trip/<slug:slug>/edit", CreateTripView.as_view(), name="edit-trip"),
     path(
         "trip/<slug:slug>/create_expense",
         ExpenseView.as_view(),
