@@ -114,4 +114,26 @@ class ExpensePageTests(TestCase, AccountingFixtures):
         When I get the edit expense page
         Then field are already filled
         """
-        ...
+        expense = self.any_expense()
+        page = self.client.get(
+            reverse(
+                "edit-expense", kwargs={"slug": expense.trip.slug, "uuid": expense.id}
+            )
+        )
+        soup = BeautifulSoup(page.content, "html.parser")
+        assert_that(
+            float(
+                soup.find("form").find("input", attrs={"name": "amount"}).attrs["value"]
+            ),
+            is_(float(expense.amount)),
+        )
+        assert_that(
+            soup.find("form")
+            .find("select", attrs={"name": "category"})
+            .option.attrs["value"],
+            is_(expense.category),
+        )
+        assert_that(
+            soup.find("form").find("input", attrs={"name": "label"}).attrs["value"],
+            is_(expense.label),
+        )
