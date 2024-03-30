@@ -20,8 +20,7 @@
                                 <b>{{ trip.name }}</b><br>
                                 starting : {{ trip.start_date }}<br>
                                 ending : {{ trip.end_date }}<br>
-                                Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{%
-                                else %}---{% endif %}<br>
+                                Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{%else %}---{% endif %}<br>
                             </div>
                             <div class="col-auto">
                                 <div class="d-flex justify-content-end">
