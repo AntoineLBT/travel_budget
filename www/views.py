@@ -3,8 +3,9 @@ from typing import Any
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
+from django.db.models.query import QuerySet
 from django.urls import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, ListView, TemplateView
 
 from accounting.models import Expense, Trip
 from accounts.models import User
@@ -117,8 +118,9 @@ class DeleteTripView(LoginRequiredMixin, FormView):
         return reverse("dashboard")
 
 
-class TripView(LoginRequiredMixin, TemplateView):
+class TripView(LoginRequiredMixin, ListView):
     template_name: str = "trip.html"
+    paginate_by = 20
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         slug = self.request.path.split("/")[2]
@@ -132,6 +134,13 @@ class TripView(LoginRequiredMixin, TemplateView):
         )
         context = get_trips_expenses_data(context=context)
         return context
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            Trip.objects.get(owner=self.request.user)
+            .expense_set.all()
+            .order_by("-expense_date")
+        )
 
 
 class ExpenseView(LoginRequiredMixin, FormView):

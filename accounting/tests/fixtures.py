@@ -15,6 +15,7 @@ class AccountingFixtures(UserFixtures):
             description="My first world tour in 80 days",
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
+            budget=Decimal(10000),
         )
 
     def any_expense(self):
