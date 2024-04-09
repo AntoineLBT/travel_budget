@@ -1,17 +1,9 @@
 from django.urls import path
 
-from .views import (
-    CreateTripView,
-    CustomLogoutView,
-    DashboardView,
-    DeleteExpenseView,
-    DeleteTripView,
-    ExpenseView,
-    LoginView,
-    ProfileView,
-    RegistrationView,
-    TripView,
-)
+from .views import (CreateTripView, CustomLogoutView, DashboardView,
+                    DeleteExpenseView, DeleteTripView, EditProfileView,
+                    ExpenseView, LoginView, ProfileView, RegistrationView,
+                    TripView)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),
@@ -19,6 +11,7 @@ urlpatterns = [
     path("logout", CustomLogoutView.as_view(), name="logout"),
     path("registration", RegistrationView.as_view(), name="registration"),
     path("profile", ProfileView.as_view(), name="profile"),
+    path("edit_profile", EditProfileView.as_view(), name="edit-profile"),
     path(
         "create_trip",
         CreateTripView.as_view(),

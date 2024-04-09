@@ -61,3 +61,14 @@ def get_trips_expenses_data(context: dict):
     context["background_color"] = BACKGROUND_COLOR[: len(context["labels"])]
     context["hover_background_color"] = HOVER_BACKGROUND_COLOR[: len(context["labels"])]
     return context
+
+
+def readonlish_field(field):
+
+    field.widget.attrs[
+        "style"
+    ] = """
+                background-color: var(--bs-secondary-bg);
+                opacity: 1;
+                pointer-events:none;"""
+    return field

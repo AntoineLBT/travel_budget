@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 
@@ -11,14 +12,9 @@ from accounting.models import Expense, Trip
 from accounts.models import User
 from www.utility import get_trips_expenses_data
 
-from .forms import (
-    make_delete_expense_form,
-    make_delete_trip_form,
-    make_expense_form,
-    make_login_form,
-    make_registration_form,
-    make_trip_form,
-)
+from .forms import (make_delete_expense_form, make_delete_trip_form,
+                    make_edit_profile_form, make_expense_form, make_login_form,
+                    make_registration_form, make_trip_form)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -82,6 +78,26 @@ class RegistrationView(FormView):
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name: str = "profile.html"
+
+
+class EditProfileView(LoginRequiredMixin, FormView):
+    template_name: str = "edit_profile.html"
+
+    def get_form_class(self) -> type:
+        return make_edit_profile_form(self.request)
+
+    def get_success_url(self) -> str:
+        return reverse("profile")
+
+    def form_valid(self, form: Any) -> HttpResponse:
+
+        User.objects.filter(email=form.cleaned_data["email"]).update(
+            country=form.cleaned_data["country"],
+            date_of_birth=form.cleaned_data["date_of_birth"],
+            currency=form.cleaned_data["currency"],
+        )
+
+        return super().form_valid(form)
 
 
 class CreateTripView(LoginRequiredMixin, FormView):

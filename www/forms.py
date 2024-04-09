@@ -12,7 +12,10 @@ from django.urls import reverse
 
 from accounting.constants import Category
 from accounting.models import Expense, Trip
+from accounts.constants import Country, Currency
 from accounts.models import User
+
+from .utility import readonlish_field
 
 
 def make_login_form(request) -> forms.Form:
@@ -240,3 +243,65 @@ def make_delete_expense_form() -> forms.Form:
             fields = []
 
     return DeleteExpenseForm
+
+
+def make_edit_profile_form(request) -> forms.Form:
+    class EditProfileForm(forms.Form):
+
+        email = forms.CharField(max_length=255, required=True)
+        username = forms.CharField(max_length=255, required=True)
+        date_of_birth = forms.DateField(
+            required=False,
+            widget=forms.DateInput(attrs={"type": "date"}),
+        )
+        country = forms.ChoiceField(
+            choices=[(cat.value, cat.name) for cat in Country], required=False
+        )
+        currency = forms.ChoiceField(
+            choices=[(cat.value, cat.name) for cat in Currency], required=False
+        )
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.request = request
+            self.helper = helper.FormHelper()
+            self.helper.form_id = "trip-form"
+            self.helper.form_method = "post"
+            self.helper.layout = Layout(
+                FloatingField("email"),
+                FloatingField("username"),
+                FloatingField("date_of_birth"),
+                FloatingField("country"),
+                FloatingField("currency"),
+                Div(
+                    Submit("update", "Update profile", css_class="me-2"),
+                    HTML(
+                        f"""<a class="btn btn-secondary" href="""
+                        f"""{reverse('profile')}>"""
+                        f"""Cancel</a>"""
+                    ),
+                    css_class="d-flex justify-content-center",
+                ),
+            )
+
+            self.fields["email"].initial = self.request.user.email
+            self.fields["username"].initial = self.request.user.username
+            self.fields["date_of_birth"].initial = (
+                self.request.user.date_of_birth
+                if self.request.user.date_of_birth
+                else date.today
+            )
+            self.fields["country"].initial = (
+                self.request.user.country
+                if self.request.user.country
+                else Country.FRANCE.value
+            )
+            self.fields["currency"].initial = (
+                self.request.user.currency
+                if self.request.user.currency
+                else Currency.EURO.value
+            )
+            readonlish_field(self.fields["email"])
+            readonlish_field(self.fields["username"])
+
+    return EditProfileForm
