@@ -12,9 +12,16 @@ from accounting.models import Expense, Trip
 from accounts.models import User
 from www.utility import get_trips_expenses_data
 
-from .forms import (make_delete_expense_form, make_delete_trip_form,
-                    make_edit_profile_form, make_expense_form, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_delete_expense_form,
+    make_delete_trip_form,
+    make_edit_profile_form,
+    make_expense_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+    make_join_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -124,6 +131,13 @@ class CreateTripView(LoginRequiredMixin, FormView):
 
     def get_success_url(self) -> str:
         return reverse("dashboard")
+
+
+class JoinTripView(LoginRequiredMixin, FormView):
+    template_name: str = "join_trip.html"
+
+    def get_form_class(self):
+        return make_join_trip_form()
 
 
 class DeleteTripView(LoginRequiredMixin, FormView):
