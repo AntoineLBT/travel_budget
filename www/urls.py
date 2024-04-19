@@ -13,6 +13,8 @@ from .views import (
     RegistrationView,
     JoinTripView,
     TripView,
+    ShareTripView,
+    HTMXGenerateTokenView,
 )
 
 urlpatterns = [
@@ -33,6 +35,12 @@ urlpatterns = [
         name="delete-trip",
     ),
     path("trip/<slug:slug>/consult", TripView.as_view(), name="consult-trip"),
+    path("trip/<slug:slug>/share", ShareTripView.as_view(), name="share-trip"),
+    path(
+        "trip/<slug:slug>/share/generate_token",
+        HTMXGenerateTokenView.as_view(),
+        name="htmx-generate-token",
+    ),
     path("trip/<slug:slug>/edit", CreateTripView.as_view(), name="edit-trip"),
     path("join_trip", JoinTripView.as_view(), name="join-trip"),
     path(

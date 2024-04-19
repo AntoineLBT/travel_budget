@@ -109,7 +109,7 @@ def make_registration_form() -> forms.Form:
 
 def make_join_trip_form() -> forms.Form:
     class JoinTripForm(forms.Form):
-        trip_reference: str = forms.CharField(max_length=255, required=True)
+        token: str = forms.CharField(max_length=255, required=True)
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -118,14 +118,14 @@ def make_join_trip_form() -> forms.Form:
             self.helper.form_method = "post"
             self.helper.layout = Layout(
                 Div(
-                    Div(FloatingField("trip_reference"), css_class="col-11"),
+                    Div(FloatingField("token"), css_class="col-11"),
                     Div(
                         HTML(
                             """
                             <i class="bi bi-info-square mt-2" \
                         data-bs-toggle="tooltip" \
                         data-bs-placement="right" \
-                        data-bs-original-title="Don't have a trip reference ? \
+                        data-bs-original-title="Don't have a trip token ? \
                         Ask to the trip owner to generate one and share it to you.">
                     </i>"""
                         ),

@@ -4,9 +4,11 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
 from django.db.models.query import QuerySet
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
+from secrets import token_urlsafe
 
 from accounting.models import Expense, Trip
 from accounts.models import User
@@ -138,6 +140,39 @@ class JoinTripView(LoginRequiredMixin, FormView):
 
     def get_form_class(self):
         return make_join_trip_form()
+
+
+class ShareTripView(LoginRequiredMixin, TemplateView):
+    template_name: str = "share_trip.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        slug = self.request.path.split("/")[2]
+        context = super().get_context_data(**kwargs)
+        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        context["trip"] = trip
+        return context
+
+
+class HTMXGenerateTokenView(LoginRequiredMixin, TemplateView):
+    template_name: str = "htmx/generate_token.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        slug = self.request.path.split("/")[2]
+        context = super().get_context_data(**kwargs)
+        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        context["trip"] = trip
+        return context
+
+    def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        slug = self.request.path.split("/")[2]
+        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        trip.token = token_urlsafe(32)
+        trip.save()
+        return render(
+            request=request,
+            context=self.get_context_data(),
+            template_name=self.template_name,
+        )
 
 
 class DeleteTripView(LoginRequiredMixin, FormView):

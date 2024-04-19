@@ -23,7 +23,7 @@
     <title>{% block title %}Travel budget{% endblock %}</title>
 </head>
 
-<body">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <main>
     <div class="container">
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
@@ -50,5 +50,7 @@
 
 <!-- Template Main JS File -->
 <script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/htmx.min.js' %}"></script>
+
 
 </html>

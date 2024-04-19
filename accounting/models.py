@@ -28,6 +28,7 @@ class Trip(models.Model):
     budget = models.DecimalField(
         name="budget", decimal_places=2, max_digits=20, default=0
     )
+    token: str = models.CharField(max_length=255, null=True, blank=True)
     slug = models.SlugField(blank=True, null=True, unique=True)
 
     def save(self, *args, **kwargs):

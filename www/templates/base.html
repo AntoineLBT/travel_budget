@@ -23,7 +23,7 @@
     <title>{% block title %}Travel budget{% endblock %}</title>
 </head>
 
-<body id="page-top">
+<body id="page-top" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <!-- ======= Header ======= -->
     <header id="header" class="header fixed-top d-flex align-items-center">
 

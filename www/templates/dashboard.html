@@ -22,6 +22,15 @@
                                 ending : {{ trip.end_date }}<br>
                                 Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{%else %}---{% endif %}<br>
                             </div>
+                            <div class="col-auto p-0">
+                                <div class="d-flex justify-content-end">
+                                    <a href="{% url 'share-trip' slug=trip.slug %}" class="btn btn-primary">
+                                        <span class="icon fs-5">
+                                            <i class="bi bi-share"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
                             <div class="col-auto">
                                 <div class="d-flex justify-content-end">
                                     <a href="{% url 'consult-trip' slug=trip.slug %}" class="btn btn-success">
