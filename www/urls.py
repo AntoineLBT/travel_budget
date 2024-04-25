@@ -1,21 +1,10 @@
 from django.urls import path
 
-from .views import (
-    CreateTripView,
-    CustomLogoutView,
-    DashboardView,
-    DeleteExpenseView,
-    DeleteTripView,
-    EditProfileView,
-    ExpenseView,
-    LoginView,
-    ProfileView,
-    RegistrationView,
-    JoinTripView,
-    TripView,
-    ShareTripView,
-    HTMXGenerateTokenView,
-)
+from .views import (CreateTripView, CustomLogoutView, DashboardView,
+                    DeleteExpenseView, DeleteTripView, EditProfileView,
+                    ExpenseView, HTMXGenerateTokenView, JoinTripView,
+                    LoginView, ProfileView, RegistrationView, ShareTripView,
+                    TripView)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),

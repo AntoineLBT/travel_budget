@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+from secrets import token_urlsafe
 from typing import Any
 
 from django.contrib.auth import authenticate, login
@@ -8,22 +10,15 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
-from secrets import token_urlsafe
 
-from accounting.models import Expense, Trip
+from accounting.models import Expense, Trip, TripToken
 from accounts.models import User
 from www.utility import get_trips_expenses_data
 
-from .forms import (
-    make_delete_expense_form,
-    make_delete_trip_form,
-    make_edit_profile_form,
-    make_expense_form,
-    make_login_form,
-    make_registration_form,
-    make_trip_form,
-    make_join_trip_form,
-)
+from .forms import (make_delete_expense_form, make_delete_trip_form,
+                    make_edit_profile_form, make_expense_form,
+                    make_join_trip_form, make_login_form,
+                    make_registration_form, make_trip_form)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -166,8 +161,9 @@ class HTMXGenerateTokenView(LoginRequiredMixin, TemplateView):
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         slug = self.request.path.split("/")[2]
         trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
-        trip.token = token_urlsafe(32)
-        trip.save()
+        TripToken.objects.create(
+            token=token_urlsafe(32), expiry=datetime.now(tz=timezone.utc), trip=trip
+        )
         return render(
             request=request,
             context=self.get_context_data(),

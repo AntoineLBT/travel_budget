@@ -11,13 +11,7 @@
             <div class="pt-4 pb-2">
                 <h5 class="card-title text-center pb-0 fs-4">Share your trip</h5>
             </div>
-            <p class="text-center" id="token" >
-                {% if trip.token %}
-                Trip token : {{ trip.token }}
-                {% else %}
-                You have not generate a token yet.
-                {% endif %}
-            </p>
+            {% include "htmx/generate_token.html" %}
             <div class="d-flex justify-content-center"> 
                 <button hx-put="{% url 'htmx-generate-token' slug=trip.slug %}" hx-target="#token" hx-trigger="click" hx-swap="innerHTML" name="generate_token" value="Generate a token" class="btn btn-primary me-2">Generate token</button>
                 <a class="btn btn-secondary" href="/dashboard">Cancel</a>
@@ -25,4 +19,20 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+function copyToClipBoard() {
+  // Get the text field
+  var copyText = document.getElementById("token_string");
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.innerText);
+
+  // Alert the copied text
+  alert("Token copied");
+}
+</script>
+
 {% endblock %}

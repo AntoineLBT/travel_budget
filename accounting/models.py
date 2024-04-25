@@ -1,6 +1,8 @@
 import random
 import string
-from datetime import date
+from dataclasses import dataclass
+from datetime import date, datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from django.db import models
@@ -10,6 +12,12 @@ from django.template.defaultfilters import slugify
 from accounts.models import User
 
 from .constants import Category
+
+
+@dataclass
+class Token:
+    token: str
+    expiry: datetime
 
 
 class Trip(models.Model):
@@ -28,7 +36,6 @@ class Trip(models.Model):
     budget = models.DecimalField(
         name="budget", decimal_places=2, max_digits=20, default=0
     )
-    token: str = models.CharField(max_length=255, null=True, blank=True)
     slug = models.SlugField(blank=True, null=True, unique=True)
 
     def save(self, *args, **kwargs):
@@ -56,6 +63,14 @@ class Trip(models.Model):
     def total_expenses(self) -> int:
         return self.expense_set.aggregate(Sum("amount"))["amount__sum"]
 
+    @property
+    def last_token(self) -> Optional[Token]:
+        return (
+            self.triptoken_set.order_by("expiry").last()
+            if self.triptoken_set.count() > 0
+            else None
+        )
+
 
 class Expense(models.Model):
     CATEGORY_CHOICES = [
@@ -76,3 +91,9 @@ class Expense(models.Model):
         null=True,
         blank=True,
     )
+
+
+class TripToken(models.Model):
+    token: str = models.CharField(max_length=255)
+    expiry: str = models.DateTimeField()
+    trip: Trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
