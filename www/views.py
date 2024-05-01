@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from secrets import token_urlsafe
 from typing import Any
 
@@ -27,7 +27,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["trips"] = Trip.objects.filter(owner=self.request.user).order_by(
+        context["trips"] = Trip.objects.filter(members=self.request.user).order_by(
             "-end_date"
         )
         context = get_trips_expenses_data(context=context)
@@ -116,14 +116,15 @@ class CreateTripView(LoginRequiredMixin, FormView):
         return make_trip_form(trip=trip)
 
     def form_valid(self, form):
-        Trip.objects.create(
+        trip = Trip.objects.create(
             name=form.cleaned_data["name"],
             description=form.cleaned_data["description"],
             start_date=form.cleaned_data["start_date"],
             end_date=form.cleaned_data["end_date"],
             budget=form.cleaned_data["budget"],
-            owner=User.objects.get(email=self.request.user.email),
+            owner=self.request.user,
         )
+        trip.members.add(self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -132,9 +133,20 @@ class CreateTripView(LoginRequiredMixin, FormView):
 
 class JoinTripView(LoginRequiredMixin, FormView):
     template_name: str = "join_trip.html"
+    trip = None
 
     def get_form_class(self):
         return make_join_trip_form()
+
+    def form_valid(self, form: Any) -> HttpResponse:
+        token = form.cleaned_data["token"]
+        trip = TripToken.objects.get(token=token).trip
+        trip.members.add(self.request.user.id)
+        self.trip = trip
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse("consult-trip", kwargs={"slug": self.trip.slug})
 
 
 class ShareTripView(LoginRequiredMixin, TemplateView):
@@ -143,7 +155,7 @@ class ShareTripView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         slug = self.request.path.split("/")[2]
         context = super().get_context_data(**kwargs)
-        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        trip: Trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
         context["trip"] = trip
         return context
 
@@ -154,15 +166,17 @@ class HTMXGenerateTokenView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         slug = self.request.path.split("/")[2]
         context = super().get_context_data(**kwargs)
-        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        trip: Trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
         context["trip"] = trip
         return context
 
     def put(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         slug = self.request.path.split("/")[2]
-        trip: Trip = Trip.objects.filter(owner=self.request.user, slug=slug).first()
+        trip: Trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
         TripToken.objects.create(
-            token=token_urlsafe(32), expiry=datetime.now(tz=timezone.utc), trip=trip
+            token=token_urlsafe(32),
+            expiry=datetime.now(tz=timezone.utc) + timedelta(days=1),
+            trip=trip,
         )
         return render(
             request=request,
@@ -191,7 +205,7 @@ class TripView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         slug = self.request.path.split("/")[2]
         context = super().get_context_data(**kwargs)
-        context["trips"] = Trip.objects.filter(owner=self.request.user, slug=slug)
+        context["trips"] = Trip.objects.filter(members=self.request.user, slug=slug)
         context["trip"] = context["trips"].first()
         context["budget_completion"] = (
             (context["trip"].total_expenses * 100) / context["trip"].budget
@@ -202,8 +216,9 @@ class TripView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self) -> QuerySet[Any]:
+        slug = slug = self.request.path.split("/")[2]
         return (
-            Trip.objects.get(owner=self.request.user)
+            Trip.objects.get(slug=slug, members=self.request.user)
             .expense_set.all()
             .order_by("-expense_date")
         )

@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 from bs4 import BeautifulSoup
 from django.test import Client, TestCase
 from django.urls import reverse
-from hamcrest import assert_that, contains_string, is_
+from hamcrest import assert_that, contains_string, greater_than, is_, less_than
 
 from accounting.models import TripToken
 from accounting.tests.fixtures import AccountingFixtures
@@ -36,6 +38,7 @@ class ShareTestPage(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
         page = self.client.get(reverse("share-trip", kwargs={"slug": trip.slug}))
@@ -71,6 +74,7 @@ class HTMXGenerateTokenTests(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
         page = self.client.put(
@@ -81,3 +85,23 @@ class HTMXGenerateTokenTests(TestCase, AccountingFixtures):
         token_from_html = soup.find("b").text
         assert_that(TripToken.objects.count(), is_(1))
         assert_that(TripToken.objects.first().token, is_(token_from_html))
+
+    def test_genereated_token_expiry(self) -> None:
+        """
+        Given a client with a trip
+        When I put on the generate token page
+        Then it return a html page containing the token expiring in more than 23h
+        """
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.members.add(user)
+        trip.save()
+
+        self.client.put(reverse("htmx-generate-token", kwargs={"slug": trip.slug}))
+
+        assert_that(TripToken.objects.count(), is_(1))
+        delta = TripToken.objects.first().expiry - datetime.now(tz=timezone.utc)
+        assert_that(delta.seconds / 60 / 60, less_than(24))
+        assert_that(delta.seconds / 60 / 60, greater_than(23))

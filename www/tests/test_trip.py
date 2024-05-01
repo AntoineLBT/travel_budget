@@ -38,6 +38,7 @@ class TripPageTests(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
         page = self.client.get(
@@ -55,6 +56,7 @@ class TripPageTests(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
         for i in range(1, 101):
@@ -81,6 +83,7 @@ class TripPageTests(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
         for i in range(1, 101):

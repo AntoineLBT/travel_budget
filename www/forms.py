@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any, Dict, Optional
 
 from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from accounting.constants import Category
-from accounting.models import Expense, Trip
+from accounting.models import Expense, Trip, TripToken
 from accounts.constants import Country, Currency
 from accounts.models import User
 
@@ -139,6 +139,15 @@ def make_join_trip_form() -> forms.Form:
                     css_class="d-flex justify-content-center",
                 ),
             )
+
+        def clean(self):
+            if not TripToken.objects.filter(token=self.cleaned_data["token"]).exists():
+                raise ValidationError("This token does not exists.")
+
+            token = TripToken.objects.get(token=self.cleaned_data["token"])
+
+            if token.expiry < datetime.now(tz=timezone.utc):
+                raise ValidationError("This token has expired.")
 
     return JoinTripForm
 
