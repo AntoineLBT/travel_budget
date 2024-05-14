@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
-from accounting.models import Trip
+from accounting.models import Membership, Trip
 from accounting.tests.fixtures import AccountingFixtures
 from accounts.models import User
 from www.tests import AuthenticatedClient
@@ -45,7 +45,7 @@ class JoinTripTestPage(TestCase, AccountingFixtures):
         Given a client belonging to no trip
         When I post a valid trip's token
         Then it return the trip page on the client has been added as a member
-        of the trip
+        of the trip and a membership has been created
         """
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
@@ -62,6 +62,7 @@ class JoinTripTestPage(TestCase, AccountingFixtures):
             is_(reverse("consult-trip", kwargs={"slug": trip.slug})),
         )
         assert_that(Trip.objects.filter(members=user).first(), is_(trip))
+        assert_that(Membership.objects.filter(trip=trip, user=user).exists(), is_(True))
 
     def test_join_trip_expired_token(self) -> None:
         """

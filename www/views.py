@@ -11,14 +11,20 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 
-from accounting.models import Expense, Trip, TripToken
+from accounting.models import Expense, Trip, TripToken, Membership
 from accounts.models import User
 from www.utility import get_trips_expenses_data
 
-from .forms import (make_delete_expense_form, make_delete_trip_form,
-                    make_edit_profile_form, make_expense_form,
-                    make_join_trip_form, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_delete_expense_form,
+    make_delete_trip_form,
+    make_edit_profile_form,
+    make_expense_form,
+    make_join_trip_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -143,6 +149,7 @@ class JoinTripView(LoginRequiredMixin, FormView):
         trip = TripToken.objects.get(token=token).trip
         trip.members.add(self.request.user.id)
         self.trip = trip
+        Membership.objects.create(trip=trip, user=self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

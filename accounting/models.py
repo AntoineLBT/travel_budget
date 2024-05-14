@@ -97,3 +97,18 @@ class TripToken(models.Model):
     token: str = models.CharField(max_length=255)
     expiry: str = models.DateTimeField()
     trip: Trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+
+
+class Membership(models.Model):
+    id: UUID = models.UUIDField(primary_key=True, default=uuid4)
+    trip: Trip = models.ForeignKey(Trip, on_delete=models.CASCADE, default=None)
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    can_create_expense: bool = models.BooleanField(
+        name="can_create_expense", default=False
+    )
+    can_edit_expense: bool = models.BooleanField(name="can_edit_expense", default=False)
+    can_delete_expense: bool = models.BooleanField(
+        name="can_delete_expense", default=False
+    )
+    can_edit_trip: bool = models.BooleanField(name="can_edit_trip", default=False)
+    can_share_trip: bool = models.BooleanField(name="can_share_trip", default=False)
