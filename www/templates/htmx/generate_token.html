@@ -1,24 +1,26 @@
-<div class="row">
-    <div {% if trip.last_token %}class="col-11"{% else %}class="col-12"{% endif %}>
-        <p class="text-center" id="token" >
-            {% if trip.last_token %}
-            Token : <b id="token_string">{{trip.last_token.token}}</b><br>
-            Generated on : {{trip.last_token.expiry}} (valid for 1 day).
-            {% else %}
-            You have not generate a token yet.
-            {% endif %}
-        </p>
+<div id="token">
+    <div class="row">
+        <div {% if trip.last_token %}class="col-11"{% else %}class="col-12"{% endif %}>
+            <p class="text-center">
+                {% if trip.last_token %}
+                Token : <b id="token_string">{{trip.last_token.token}}</b><br>
+                Generated on : {{trip.last_token.expiry}} (valid for 1 day).
+                {% else %}
+                You have not generate a token yet.
+                {% endif %}
+            </p>
+        </div>
+        {% if trip.last_token %}
+        <div class="col-1 ms-0 ps-0">
+            <a href="#" class="btn btn-outline-primary" onclick="copyToClipBoard()">
+                <span class="icon fs-6">
+                    <i class="bi bi-clipboard-plus"></i>
+                </span>
+            </a>
+        </div>
     </div>
-    {% if trip.last_token %}
-    <div class="col-1 ms-0 ps-0">
-        <a href="#" class="btn btn-outline-primary" onclick="copyToClipBoard()">
-            <span class="icon fs-6">
-                <i class="bi bi-clipboard-plus"></i>
-            </span>
-        </a>
-    </div>
+    <p class="text-center">
+        You must share this token with your friend to allow them to join your trip.
+    </p>
+    {% endif %}
 </div>
-<p class="text-center">
-    You must share this token with your friend to allow them to join your trip.
-</p>
-{% endif %}
