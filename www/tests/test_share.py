@@ -46,6 +46,18 @@ class ShareTestPage(TestCase, AccountingFixtures):
         assert_that(soup.find("b", attrs={"id": "token_string"}), is_(None))
         assert_that(TripToken.objects.count(), is_(0))
 
+    def test_share_trip_without_permission(self) -> None:
+        """
+        Given a client not member of a trip
+        When I get the share trip page
+        Then it return a 403 status code
+        """
+        page = self.client.get(
+            reverse("share-trip", kwargs={"slug": self.any_trip().slug})
+        )
+
+        assert_that(page.status_code, is_(403))
+
 
 class HTMXGenerateTokenTests(TestCase, AccountingFixtures):
 
@@ -105,3 +117,15 @@ class HTMXGenerateTokenTests(TestCase, AccountingFixtures):
         delta = TripToken.objects.first().expiry - datetime.now(tz=timezone.utc)
         assert_that(delta.seconds / 60 / 60, less_than(24))
         assert_that(delta.seconds / 60 / 60, greater_than(23))
+
+    def test_generate_token_without_permission(self) -> None:
+        """
+        Given a client not member of a trip
+        When I get the htmx page to generate a trip token
+        Then it return a 403 status code
+        """
+        page = self.client.put(
+            reverse("htmx-generate-token", kwargs={"slug": self.any_trip().slug})
+        )
+
+        assert_that(page.status_code, is_(403))

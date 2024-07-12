@@ -11,20 +11,15 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 
-from accounting.models import Expense, Trip, TripToken, Membership
+from accounting.models import Expense, Membership, Trip, TripToken
 from accounts.models import User
-from www.utility import get_trips_expenses_data
+from www.mixins import CustomPermissionRequiredMixin
+from www.utility import get_trips_expenses_data, handle_permission
 
-from .forms import (
-    make_delete_expense_form,
-    make_delete_trip_form,
-    make_edit_profile_form,
-    make_expense_form,
-    make_join_trip_form,
-    make_login_form,
-    make_registration_form,
-    make_trip_form,
-)
+from .forms import (make_delete_expense_form, make_delete_trip_form,
+                    make_edit_profile_form, make_expense_form,
+                    make_join_trip_form, make_login_form,
+                    make_registration_form, make_trip_form)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -113,6 +108,16 @@ class EditProfileView(LoginRequiredMixin, FormView):
 class CreateTripView(LoginRequiredMixin, FormView):
     template_name: str = "create_trip.html"
 
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if "edit" in self.request.path:
+            slug = self.request.path.split("/")[2]
+            trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
+            handle_permission(
+                trip=trip, user=self.request.user, permission="can_edit_trip"
+            )
+
+        return super().get(request, *args, **kwargs)
+
     def get_form_class(self):
         if "edit" in self.request.path:
             slug = self.request.path.split("/")[2]
@@ -156,19 +161,24 @@ class JoinTripView(LoginRequiredMixin, FormView):
         return reverse("consult-trip", kwargs={"slug": self.trip.slug})
 
 
-class ShareTripView(LoginRequiredMixin, TemplateView):
+class ShareTripView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
     template_name: str = "share_trip.html"
+    permissions = "can_share_trip"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-        slug = self.request.path.split("/")[2]
         context = super().get_context_data(**kwargs)
-        trip: Trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
-        context["trip"] = trip
+        slug = self.request.path.split("/")[2]
+        context["trip"] = Trip.objects.filter(
+            members=self.request.user, slug=slug
+        ).first()
         return context
 
 
-class HTMXGenerateTokenView(LoginRequiredMixin, TemplateView):
+class HTMXGenerateTokenView(
+    LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView
+):
     template_name: str = "htmx/generate_token.html"
+    permissions = "can_share_trip"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         slug = self.request.path.split("/")[2]
@@ -192,7 +202,9 @@ class HTMXGenerateTokenView(LoginRequiredMixin, TemplateView):
         )
 
 
-class DeleteTripView(LoginRequiredMixin, FormView):
+class DeleteTripView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+
+    permissions = "can_delete_trip"
 
     def get_form_class(self):
         return make_delete_trip_form()
@@ -233,15 +245,33 @@ class TripView(LoginRequiredMixin, ListView):
 
 class ExpenseView(LoginRequiredMixin, FormView):
     template_name: str = "create_expense.html"
+    trip = None
+
+    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        trip_slug = self.request.path.split("/")[2]
+        self.trip = Trip.objects.get(slug=trip_slug)
+        if "edit_expense" in self.request.path:
+            handle_permission(
+                trip=self.trip,
+                user=self.request.user,
+                permission="can_edit_expense",
+            )
+        else:
+            handle_permission(
+                trip=self.trip, user=self.request.user, permission="can_create_expense"
+            )
+        return super().get(request, *args, **kwargs)
 
     def get_form_class(self) -> type:
-        trip_slug = self.request.path.split("/")[2]
         if "edit_expense" in self.request.path:
             expense_id = self.request.path.split("/")[4]
             expense = Expense.objects.get(id=expense_id)
         else:
             expense = None
-        return make_expense_form(trip=Trip.objects.get(slug=trip_slug), expense=expense)
+        trip_slug = self.request.path.split("/")[2]
+        return make_expense_form(
+            trip=self.trip or Trip.objects.get(slug=trip_slug), expense=expense
+        )
 
     def get_success_url(self) -> str:
         trip_slug = self.request.path.split("/")[2]
@@ -261,7 +291,9 @@ class ExpenseView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class DeleteExpenseView(LoginRequiredMixin, FormView):
+class DeleteExpenseView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+
+    permissions = "can_delete_expense"
 
     def get_form_class(self):
         return make_delete_expense_form()

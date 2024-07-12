@@ -99,8 +99,8 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
-
         page = self.client.get(reverse("edit-trip", kwargs={"slug": trip.slug}))
         soup = BeautifulSoup(page.content, "html.parser")
         assert_that(

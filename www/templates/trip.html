@@ -2,6 +2,7 @@
 {% load custom_tags %}
 {% block body %}
 <!-- Page Heading -->
+{% with disable_button="background-color: var(--bs-secondary-bg);opacity: 1;pointer-events:none;" %}
 <div class="row mb-2">
     <div class="col-lg-6">
         <div class="pagetitle">
@@ -9,7 +10,8 @@
         </div>
     </div>
     <div class="col-lg-6 d-flex justify-content-end">
-        <a href="{% url 'create-expense' slug=trip.slug %}" class="btn btn-outline-primary">
+        {% get_permission trip user 'can_create_expense'  as can_create_expense %}
+        <a href="{% url 'create-expense' slug=trip.slug %}" class="btn btn-outline-primary" {% if not can_create_expense %} style="{{disable_button}}" {% endif %}>
             <span class="icon fs-5">
                 <i class="bi bi-plus"></i>
                 Expense
@@ -26,7 +28,8 @@
                         <h5 class="card-title">Information</h5>
                     </div>
                     <div class="col-lg-6 d-flex justify-content-end">
-                        <a href="{% url 'edit-trip' slug=trip.slug %}" class="btn btn-outline-primary m-3">
+                        {% get_permission trip user 'can_edit_trip'  as can_edit_trip %}
+                        <a href="{% url 'edit-trip' slug=trip.slug %}" class="btn btn-outline-primary m-3" {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
                             <span class="icon">
                                 <i class="bi bi-pencil-square"></i>
                             </span>
@@ -99,6 +102,8 @@
                 </tr>
               </thead>
               <tbody>
+                {% get_permission trip user 'can_edit_expense'  as can_edit_expense %}
+                {% get_permission trip user 'can_delete_expense'  as can_delete_expense %}
                 {% for expense in page_obj %}
                 <tr>
                     <td scope="row">{{expense.label}}</td>
@@ -106,14 +111,14 @@
                     <td>{{expense.category}}</td>
                     <td>{{expense.expense_date}}</td>
                     <td>
-                        <a href="{% url 'edit-expense' slug=trip.slug uuid=expense.id %}" class="btn btn-outline-primary">
+                        <a href="{% url 'edit-expense' slug=trip.slug uuid=expense.id %}" class="btn btn-outline-primary"  {% if not can_edit_expense %} style="{{disable_button}}" {% endif %}>
                             <span class="icon">
                                 <i class="bi bi-pencil-square"></i>
                             </span>
                         </a>
                     </td>
                     <td>
-                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{expense.id}}_modal">
+                        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{expense.id}}_modal"  {% if not can_delete_expense %} style="{{disable_button}}" {% endif %}>
                             <span class="icon">
                                 <i class="bi bi-trash"></i>
                             </span>
@@ -165,6 +170,7 @@
     </div>
   </div>
 </div>
+{% endwith %}
 {% endblock %}
 
 {% block script %}

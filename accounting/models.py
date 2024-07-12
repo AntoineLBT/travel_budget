@@ -112,3 +112,4 @@ class Membership(models.Model):
     )
     can_edit_trip: bool = models.BooleanField(name="can_edit_trip", default=False)
     can_share_trip: bool = models.BooleanField(name="can_share_trip", default=False)
+    can_delete_trip: bool = models.BooleanField(name="can_delete_trip", default=False)

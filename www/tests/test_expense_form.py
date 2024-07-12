@@ -9,6 +9,7 @@ from hamcrest import assert_that, contains_string, is_
 from accounting.constants import Category
 from accounting.models import Expense
 from accounting.tests.fixtures import AccountingFixtures
+from accounts.models import User
 from www.tests import AuthenticatedClient
 
 
@@ -38,11 +39,15 @@ class ExpensePageTests(TestCase, AccountingFixtures):
         Then it return a 200 status
         """
 
-        page = self.client.get(
-            reverse("create-expense", kwargs={"slug": self.any_trip().slug})
-        )
+        trip = self.any_trip()
+        trip.owner = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip.save()
+
+        page = self.client.get(reverse("create-expense", kwargs={"slug": trip.slug}))
 
         assert_that(page.status_code, is_(200))
+
+    def test_get_create_expense_page_without_permission(self) -> None: ...
 
     def test_create_valid_expense(self) -> None:
         """
@@ -86,6 +91,8 @@ class ExpensePageTests(TestCase, AccountingFixtures):
 
         expense_label = "Réparation voiture"
         trip = self.any_trip()
+        trip.owner = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip.save()
         trip.start_date = date(2024, 3, 23)
         trip.end_date = date(2024, 3, 31)
         trip.save()
@@ -115,6 +122,8 @@ class ExpensePageTests(TestCase, AccountingFixtures):
         Then field are already filled
         """
         expense = self.any_expense()
+        expense.trip.owner = User.objects.get(id=self.client.session["_auth_user_id"])
+        expense.trip.save()
         page = self.client.get(
             reverse(
                 "edit-expense", kwargs={"slug": expense.trip.slug, "uuid": expense.id}

@@ -1,6 +1,9 @@
+from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 
 from accounting.constants import Category
+from accounting.models import Membership, Trip
+from accounts.models import User
 
 BACKGROUND_COLOR = [
     "#fd7c7c",
@@ -72,3 +75,10 @@ def readonlish_field(field):
                 opacity: 1;
                 pointer-events:none;"""
     return field
+
+
+def handle_permission(trip: Trip, user: User, permission: str):
+    if not getattr(
+        Membership.objects.filter(trip=trip, user=user).first(), permission, False
+    ) and not (trip.owner.id is user.id):
+        raise PermissionDenied
