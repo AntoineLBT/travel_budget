@@ -33,4 +33,5 @@ jobs:
         isort .
     - name: Run Tests
       run: |
-        python manage.py test
+        coverage run --omit="manage.py","travel_budget/*" --source='.' manage.py test
+        coverage report --fail-under=100
