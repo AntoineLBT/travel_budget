@@ -30,6 +30,14 @@ class TripTests(TestCase, AccountingFixtures):
         assert_that(trip.slug, is_(not_(none())))
         assert_that(trip.slug, contains_string("world-tour"))
 
+    def test_trip_is_active(self) -> None:
+        trip = self.any_trip()
+        trip.start_date = date(2023, 1, 1)
+        trip.end_date = date(2023, 12, 25)
+        trip.save()
+
+        assert_that(trip.is_active, is_(False))
+
 
 class ExpenseTests(TestCase, AccountingFixtures):
     def test_expense_model(self) -> None:
