@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from hamcrest import assert_that, contains_string, is_
 
-from accounting.models import Trip
+from accounting.models import Membership, Trip
 from accounting.tests.fixtures import AccountingFixtures
 from accounts.models import User
 from www.tests import AuthenticatedClient
@@ -129,3 +129,32 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
             ),
             is_(float(trip.budget)),
         )
+
+    def test_delete_member_from_trip(self) -> None:
+        """
+        Given a trip with a one member
+        When I delete this member
+        Then it return the trip page without the member,
+        and the member has been removed from the members and membership as been deleted.
+        """
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.save()
+
+        membership = self.any_membership(trip=trip)
+
+        page = self.client.post(
+            reverse(
+                "delete-member",
+                kwargs={"slug": trip.slug, "uuid": membership.id},
+            ),
+            data={"id": membership.id},
+        )
+
+        assert_that(
+            page.url,
+            is_(reverse("consult-trip", kwargs={"slug": trip.slug})),
+        )
+        assert_that(Membership.objects.count(), is_(0))

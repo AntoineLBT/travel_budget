@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from accounting.constants import Category
-from accounting.models import Expense, Trip, TripToken
+from accounting.models import Expense, Membership, Trip, TripToken
 from accounts.constants import Country, Currency
 from accounts.models import User
 
@@ -350,3 +350,12 @@ def make_edit_profile_form(request) -> forms.Form:
             readonlish_field(self.fields["username"])
 
     return EditProfileForm
+
+
+def make_delete_member_form() -> forms.Form:
+    class DeleteMemberForm(forms.ModelForm):
+        class Meta:
+            model = Membership
+            fields = []
+
+    return DeleteMemberForm

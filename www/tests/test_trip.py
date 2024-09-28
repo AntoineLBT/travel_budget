@@ -71,7 +71,7 @@ class TripPageTests(TestCase, AccountingFixtures):
         page = self.client.get(reverse("consult-trip", kwargs={"slug": trip.slug}))
 
         soup = BeautifulSoup(page.content, "html.parser")
-        assert_that(len(soup.find_all("tr")), is_(21))
+        assert_that(len(soup.find(id="expense_table").find_all("tr")), is_(21))
 
     def test_expense_pagination(self) -> None:
         """
@@ -100,5 +100,11 @@ class TripPageTests(TestCase, AccountingFixtures):
         )
 
         soup = BeautifulSoup(page.content, "html.parser")
-        assert_that(soup.find_all("tr")[1].find("td").text, contains_string("21"))
-        assert_that(soup.find_all("tr")[-1].find("td").text, contains_string("40"))
+        assert_that(
+            soup.find(id="expense_table").find_all("tr")[1].find("td").text,
+            contains_string("21"),
+        )
+        assert_that(
+            soup.find(id="expense_table").find_all("tr")[-1].find("td").text,
+            contains_string("40"),
+        )

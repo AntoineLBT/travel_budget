@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 from django.db import models
 from django.db.models import CheckConstraint, F, Q, Sum
 from django.template.defaultfilters import slugify
+from django.utils import timezone
 
 from accounts.models import User
 
@@ -103,6 +104,9 @@ class Membership(models.Model):
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
     trip: Trip = models.ForeignKey(Trip, on_delete=models.CASCADE, default=None)
     user: User = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    membership_date: date = models.DateField(
+        name="membership_date", default=timezone.now
+    )
     can_create_expense: bool = models.BooleanField(
         name="can_create_expense", default=False
     )

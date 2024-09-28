@@ -52,6 +52,80 @@
                 </div>
                 {% endif %}
             </div>
+
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h5 class="card-title">Members</h5>
+                    </div>
+                    <div class="col-lg-6 d-flex justify-content-end">
+                        {% get_permission trip user 'can_edit_trip'  as can_edit_trip %}
+                        <a href="{% url 'edit-trip' slug=trip.slug %}" class="btn btn-outline-primary m-3" {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
+                            <span class="icon">
+                                <i class="bi bi-pencil-square"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <table class="table table-hover mt-2" id="member_table">
+                    <thead>
+                      <tr>
+                          <th scope="col">Username</th>
+                          <th scope="col">Since</th>
+                          <th scope="col">Expenses</th>
+                          <th scope="col">Pourcentage</th>
+                          <th scope="col">Edit</th>
+                          <th scope="col">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% get_permission trip user 'can_edit_expense'  as can_edit_expense %}
+                      {% get_permission trip user 'can_delete_expense'  as can_delete_expense %}
+                      {% for membership in memberships %}
+                      <tr>
+                          <td scope="row">{{membership.user.username}}</td>
+                          <td>{{membership.membership_date}}</td>
+                          <td>expense</td>
+                          <td>pourcentage</td>
+                          <td>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{membership.id}}_modal"  {% if not can_delete_expense %} style="{{disable_button}}" {% endif %}>
+                                <span class="icon">
+                                    <i class="bi bi-trash"></i>
+                                </span>
+                            </a>
+                        </td>
+                      
+                      </tr>
+
+                      {% comment %} Membership delete modal {% endcomment %}
+                      <div class="modal fade" id="delete_{{membership.id}}_modal" tabindex="-1" style="display: none;" aria-hidden="true">
+                          <div class="modal-dialog">
+                              <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title">Delete a member</h5>
+                                  </div>
+                              <div class="modal-body">
+                                <p>You are deleting <b>{{membership.user.username}}</b> from {{ trip.name }}.</p>
+                                <p>Do you confirm ?</p> 
+                              </div>
+                              <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                  <form action="{% url 'delete-member' slug=trip.slug uuid=membership.id %}" method="post">
+                                      {% csrf_token %}
+                                      <button type="submit" name="id" value="{{ membership.id }}" class="btn btn-danger">Yes</button>
+                                  </form>
+                                  
+                              </div>
+                          </div>
+                      </div>
+
+                      {% endfor %}
+                    </tbody>
+                  </table>
+            </div>
         </div>
     </div>
     <div class="col-6">
@@ -90,7 +164,7 @@
                 </div>
             </div>
             <!-- Table with hoverable rows -->
-            <table class="table table-hover mt-2">
+            <table class="table table-hover mt-2" id="expense_table">
               <thead>
                 <tr>
                     <th scope="col" style="width: 20%">Label</th>
@@ -145,7 +219,6 @@
                             </form>
                             
                         </div>
-                    </div>
                     </div>
                 </div>
                 {% endfor %}

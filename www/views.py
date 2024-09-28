@@ -16,10 +16,17 @@ from accounts.models import User
 from www.mixins import CustomPermissionRequiredMixin
 from www.utility import get_trips_expenses_data, handle_permission
 
-from .forms import (make_delete_expense_form, make_delete_trip_form,
-                    make_edit_profile_form, make_expense_form,
-                    make_join_trip_form, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_delete_expense_form,
+    make_delete_member_form,
+    make_delete_trip_form,
+    make_edit_profile_form,
+    make_expense_form,
+    make_join_trip_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -136,6 +143,7 @@ class CreateTripView(LoginRequiredMixin, FormView):
             owner=self.request.user,
         )
         trip.members.add(self.request.user)
+        Membership.objects.create(trip=trip, user=self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -232,6 +240,7 @@ class TripView(LoginRequiredMixin, ListView):
             else 0
         )
         context = get_trips_expenses_data(context=context)
+        context["memberships"] = Membership.objects.filter(trip=context["trip"])
         return context
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -305,3 +314,35 @@ class DeleteExpenseView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormV
     def get_success_url(self) -> str:
         slug = self.request.path.split("/")[2]
         return reverse("consult-trip", kwargs={"slug": slug})
+
+
+class DeleteMemberView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+
+    permissions = "can_delete_member"
+
+    def get_form_class(self):
+        return make_delete_member_form()
+
+    def form_valid(self, form):
+        membership = Membership.objects.get(id=self.request.POST["id"])
+        membership.trip.members.remove(membership.user)
+        membership.delete()
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        slug = self.request.path.split("/")[2]
+        return reverse("consult-trip", kwargs={"slug": slug})
+
+
+# class TripMembersView(LoginRequiredMixin, ListView):
+#     template_name = "trip_members.html"
+
+#     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+#         context = super().get_context_data(**kwargs)
+#         trip_slug = self.request.path.split("/")[2]
+#         context["trip"] = Trip.objects.get(slug=trip_slug)
+#         return context
+
+#     def get_queryset(self) -> QuerySet[Any]:
+#         trip_slug = self.request.path.split("/")[2]
+#         return Trip.objects.get(slug=trip_slug).members.all()

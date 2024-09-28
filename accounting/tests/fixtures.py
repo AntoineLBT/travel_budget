@@ -1,11 +1,13 @@
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from secrets import token_urlsafe
+from typing import Optional
 
+from accounts.models import User
 from accounts.tests.fixtures import UserFixtures
 
 from ..constants import Category
-from ..models import Expense, Trip, TripToken
+from ..models import Expense, Membership, Trip, TripToken
 
 
 class AccountingFixtures(UserFixtures):
@@ -38,3 +40,10 @@ class AccountingFixtures(UserFixtures):
             expiry=datetime.now(tz=timezone.utc) + timedelta(days=1),
             trip=trip,
         )
+
+    def any_membership(
+        self, trip: Optional[Trip] = None, user: Optional[User] = None
+    ) -> Membership:
+        user = user or self.any_user()
+        trip = trip or self.any_trip()
+        return Membership.objects.create(trip=trip, user=user)

@@ -44,7 +44,7 @@ class JoinTripTestPage(TestCase, AccountingFixtures):
         """
         Given a client belonging to no trip
         When I post a valid trip's token
-        Then it return the trip page on the client has been added as a member
+        Then it return the trip page and the client has been added as a member
         of the trip and a membership has been created
         """
         user = User.objects.get(id=self.client.session["_auth_user_id"])
