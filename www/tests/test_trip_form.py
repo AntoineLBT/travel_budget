@@ -143,7 +143,7 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
         trip.owner = user
         trip.save()
 
-        membership = self.any_membership(trip=trip)
+        membership = Membership.objects.get(trip=trip)
 
         page = self.client.post(
             reverse(

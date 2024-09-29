@@ -143,7 +143,6 @@ class CreateTripView(LoginRequiredMixin, FormView):
             owner=self.request.user,
         )
         trip.members.add(self.request.user)
-        Membership.objects.create(trip=trip, user=self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -162,7 +161,6 @@ class JoinTripView(LoginRequiredMixin, FormView):
         trip = TripToken.objects.get(token=token).trip
         trip.members.add(self.request.user.id)
         self.trip = trip
-        Membership.objects.create(trip=trip, user=self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -325,8 +323,9 @@ class DeleteMemberView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormVi
 
     def form_valid(self, form):
         membership = Membership.objects.get(id=self.request.POST["id"])
-        membership.trip.members.remove(membership.user)
-        membership.delete()
+        trip = membership.trip
+        trip.members.remove(membership.user)
+        trip.save()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

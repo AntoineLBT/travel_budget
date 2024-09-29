@@ -33,7 +33,7 @@ class Trip(models.Model):
     owner: User = models.ForeignKey(
         User, on_delete=models.CASCADE, default=None, related_name="trip_owner"
     )
-    members: User = models.ManyToManyField(User)
+    members: User = models.ManyToManyField(User, through="Membership")
     budget = models.DecimalField(
         name="budget", decimal_places=2, max_digits=20, default=0
     )
