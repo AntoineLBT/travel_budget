@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from secrets import token_urlsafe
+from typing import Any, Dict, Optional
 
 from accounts.tests.fixtures import UserFixtures
 
@@ -22,14 +23,17 @@ class AccountingFixtures(UserFixtures):
         trip.members.add(user)
         return trip
 
-    def any_expense(self) -> Expense:
-        trip = self.any_trip()
+    def any_expense(self, kwargs: Optional[Dict[str, Any]] = {}) -> Expense:
+        trip = kwargs.get("trip") or self.any_trip()
+        user = kwargs.get("user") or trip.owner
+        amount = kwargs.get("amount") or Decimal(3000)
         return Expense.objects.create(
             label="achat voiture",
-            amount=Decimal(3000),
+            amount=amount,
             category=Category.TRANSPORT.value,
             expense_date=trip.start_date,
             trip=trip,
+            user=user,
         )
 
     def any_trip_token(self, trip: Trip) -> TripToken:

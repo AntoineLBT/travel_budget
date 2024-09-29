@@ -66,6 +66,7 @@ class TripPageTests(TestCase, AccountingFixtures):
                 expense_date="2024-04-01",
                 category=Category.TRANSPORT.value,
                 trip=trip,
+                user=trip.owner,
             )
 
         page = self.client.get(reverse("consult-trip", kwargs={"slug": trip.slug}))
@@ -93,6 +94,7 @@ class TripPageTests(TestCase, AccountingFixtures):
                 expense_date="2024-04-01",
                 category=Category.TRANSPORT.value,
                 trip=trip,
+                user=trip.owner,
             )
 
         page = self.client.get(

@@ -1,10 +1,11 @@
 from datetime import date
+from decimal import Decimal
 
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from hamcrest import assert_that, contains_string, instance_of, is_, none, not_
 
-from ..models import Expense, Trip
+from ..models import Expense, Membership, Trip
 from .fixtures import AccountingFixtures
 
 
@@ -41,10 +42,36 @@ class TripTests(TestCase, AccountingFixtures):
 
 class ExpenseTests(TestCase, AccountingFixtures):
     def test_expense_model(self) -> None:
+
+        trip = self.any_trip()
+
         expense = Expense.objects.create(
             amount=100,
             label="Test",
             expense_date=date(2022, 12, 31),
-            trip=self.any_trip(),
+            trip=trip,
+            user=trip.owner,
         )
         assert_that(expense, is_(instance_of(Expense)))
+
+
+class MembershipTests(TestCase, AccountingFixtures):
+    def test_membership_total_expenses(self) -> None:
+        """
+        Given a user in a trip with 2 expenses
+        When I get the total_expenses of the member
+        Then I get the sum of the 2 expenses
+        """
+
+        trip = self.any_trip()
+
+        exp_1 = self.any_expense(
+            {"trip": trip, "amount": Decimal(123), "user": trip.owner}
+        )
+        exp_2 = self.any_expense(
+            {"trip": trip, "amount": Decimal(177), "user": trip.owner}
+        )
+
+        m = Membership.objects.get(trip=trip, user=trip.owner)
+
+        assert_that(m.total_expenses, is_(exp_1.amount + exp_2.amount))

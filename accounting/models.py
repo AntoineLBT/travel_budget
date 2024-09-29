@@ -92,6 +92,7 @@ class Expense(models.Model):
         null=True,
         blank=True,
     )
+    user: User = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
 
 
 class TripToken(models.Model):
@@ -117,3 +118,9 @@ class Membership(models.Model):
     can_edit_trip: bool = models.BooleanField(name="can_edit_trip", default=False)
     can_share_trip: bool = models.BooleanField(name="can_share_trip", default=False)
     can_delete_trip: bool = models.BooleanField(name="can_delete_trip", default=False)
+
+    @property
+    def total_expenses(self) -> int:
+        return self.trip.expense_set.filter(user=self.user).aggregate(Sum("amount"))[
+            "amount__sum"
+        ]

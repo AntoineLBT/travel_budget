@@ -74,7 +74,6 @@
                           <th scope="col">Username</th>
                           <th scope="col">Since</th>
                           <th scope="col">Expenses</th>
-                          <th scope="col">Pourcentage</th>
                           <th scope="col">Edit</th>
                           <th scope="col">Delete</th>
                       </tr>
@@ -86,8 +85,7 @@
                       <tr>
                           <td scope="row">{{membership.user.username}}</td>
                           <td>{{membership.membership_date}}</td>
-                          <td>expense</td>
-                          <td>pourcentage</td>
+                          <td>{% if membership.total_expenses %}{{membership.total_expenses}}{% else %}0{% endif %}€</td>
                           <td>
                         </td>
                         <td>
