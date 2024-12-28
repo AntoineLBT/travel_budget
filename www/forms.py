@@ -253,7 +253,7 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                     Submit("Add", submit_text, css_class="me-2"),
                     HTML(
                         f"""<a class="btn btn-secondary" href="""
-                        f"""{reverse('consult-trip', kwargs={"slug":trip.slug})}>"""
+                        f"""{reverse('consult-trip', kwargs={"slug": trip.slug})}>"""
                         f"""Cancel</a>"""
                     ),
                     css_class="d-flex justify-content-center",
