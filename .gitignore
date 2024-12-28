@@ -3,3 +3,5 @@ test/
 *.sqlite3
 .tox/
 .coverage
+.env
+data/*

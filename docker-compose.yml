@@ -1,0 +1,40 @@
+services:
+  # Django app service
+  web:
+    build: .
+    container_name: django_app
+    command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+  # PostgreSQL database service
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: travel_budget_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data # Mounting to a host directory
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+
+# Define named volumes
+volumes:
+  postgres_data:
+
+    # Define custom network
+networks:
+  mynetwork:
+    driver: bridge

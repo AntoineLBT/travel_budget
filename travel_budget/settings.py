@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get(
 # DEBUG = True
 DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
 
-ALLOWED_HOSTS = ["antoinelbt.pythonanywhere.com", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["antoinelbt.pythonanywhere.com", "127.0.0.1", "localhost", "0.0.0.0"]
 CSRF_TRUSTED_ORIGINS = ["https://AntoineLBT.pythonanywhere.com"]
 
 
@@ -95,9 +95,13 @@ WSGI_APPLICATION = "travel_budget.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'travel_budget_db'),
+        'USER': os.getenv('POSTGRES_USER', 'admin'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'admin'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),  # Default to 'localhost' for local setup
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
