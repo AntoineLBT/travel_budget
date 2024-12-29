@@ -95,13 +95,15 @@ WSGI_APPLICATION = "travel_budget.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'travel_budget_db'),
-        'USER': os.getenv('POSTGRES_USER', 'admin'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'admin'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),  # Default to 'localhost' for local setup
-        'PORT': os.getenv('DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "travel_budget_db"),
+        "USER": os.getenv("POSTGRES_USER", "admin"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "admin"),
+        "HOST": os.getenv(
+            "DB_HOST", "localhost"
+        ),  # Default to 'localhost' for local setup
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 

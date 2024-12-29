@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from decimal import Decimal
 
 from bs4 import BeautifulSoup
@@ -91,7 +92,7 @@ class TripPageTests(TestCase, AccountingFixtures):
             Expense.objects.create(
                 amount=Decimal(i),
                 label=f"exp_{i}",
-                expense_date="2024-04-01",
+                expense_date=str(date.today() + timedelta(days=i)),
                 category=Category.TRANSPORT.value,
                 trip=trip,
                 user=trip.owner,
@@ -104,9 +105,9 @@ class TripPageTests(TestCase, AccountingFixtures):
         soup = BeautifulSoup(page.content, "html.parser")
         assert_that(
             soup.find(id="expense_table").find_all("tr")[1].find("td").text,
-            contains_string("21"),
+            contains_string("80"),
         )
         assert_that(
             soup.find(id="expense_table").find_all("tr")[-1].find("td").text,
-            contains_string("40"),
+            contains_string("61"),
         )
