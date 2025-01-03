@@ -2,9 +2,9 @@ from django.urls import path
 
 from .views import (CreateTripView, CustomLogoutView, DashboardView,
                     DeleteExpenseView, DeleteMemberView, DeleteTripView,
-                    EditProfileView, ExpenseView, HTMXGenerateTokenView,
-                    JoinTripView, LoginView, ProfileView, RegistrationView,
-                    ShareTripView, TripView)
+                    EditMemberView, EditProfileView, ExpenseView,
+                    HTMXGenerateTokenView, JoinTripView, LoginView,
+                    ProfileView, RegistrationView, ShareTripView, TripView)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),
@@ -52,5 +52,9 @@ urlpatterns = [
         DeleteMemberView.as_view(),
         name="delete-member",
     ),
-    # path("trip/<slug:slug>/members", TripMembersView.as_view(), name="trip-members"),
+    path(
+        "trip/<slug:slug>/edit_member/<uuid:uuid>",
+        EditMemberView.as_view(),
+        name="edit-member",
+    ),
 ]

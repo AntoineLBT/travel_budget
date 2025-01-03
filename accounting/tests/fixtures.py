@@ -3,10 +3,11 @@ from decimal import Decimal
 from secrets import token_urlsafe
 from typing import Any, Dict, Optional
 
+from accounts.models import User
 from accounts.tests.fixtures import UserFixtures
 
 from ..constants import Category
-from ..models import Expense, Trip, TripToken
+from ..models import Expense, Membership, Trip, TripToken
 
 
 class AccountingFixtures(UserFixtures):
@@ -43,9 +44,9 @@ class AccountingFixtures(UserFixtures):
             trip=trip,
         )
 
-    # def any_membership(
-    #     self, trip: Optional[Trip] = None, user: Optional[User] = None
-    # ) -> Membership:
-    #     user = user or self.any_user()
-    #     trip = trip or self.any_trip()
-    #     return Membership.objects.create(trip=trip, user=user)
+    def any_membership(
+        self, trip: Optional[Trip] = None, user: Optional[User] = None
+    ) -> Membership:
+        user = user or self.any_user()
+        trip = trip or self.any_trip()
+        return Membership.objects.create(trip=trip, user=user)

@@ -59,14 +59,6 @@
                     <div class="col-6">
                         <h5 class="card-title">Members</h5>
                     </div>
-                    <div class="col-lg-6 d-flex justify-content-end">
-                        {% get_permission trip user 'can_edit_trip'  as can_edit_trip %}
-                        <a href="{% url 'edit-trip' slug=trip.slug %}" class="btn btn-outline-primary m-3" {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
-                            <span class="icon">
-                                <i class="bi bi-pencil-square"></i>
-                            </span>
-                        </a>
-                    </div>
                 </div>
                 <table class="table table-hover mt-2" id="member_table">
                     <thead>
@@ -79,24 +71,27 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {% get_permission trip user 'can_edit_expense'  as can_edit_expense %}
-                      {% get_permission trip user 'can_delete_expense'  as can_delete_expense %}
+                      {% get_permission trip user 'can_edit_trip'  as can_edit_trip %}
                       {% for membership in memberships %}
                       <tr>
-                          <td scope="row">{{membership.user.username}}</td>
-                          <td>{{membership.membership_date}}</td>
-                          <td>{% if membership.total_expenses %}{{membership.total_expenses}}{% else %}0{% endif %}€</td>
-                          <td>
-                        </td>
-                        <td>
-                            <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{membership.id}}_modal"  {% if not can_delete_expense %} style="{{disable_button}}" {% endif %}>
-                                <span class="icon">
-                                    <i class="bi bi-trash"></i>
-                                </span>
-                            </a>
-                        </td>
-                      
-                      </tr>
+                            <td scope="row">{{membership.user.username}}</td>
+                            <td>{{membership.membership_date}}</td>
+                            <td>{% if membership.total_expenses %}{{membership.total_expenses}}{% else %}0{% endif %}€</td>
+                            <td>
+                                <a href="{% url 'edit-member' slug=trip.slug uuid=membership.id %}" class="btn btn-outline-primary"  {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
+                                    <span class="icon">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </span>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{membership.id}}_modal"  {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
+                                    <span class="icon">
+                                        <i class="bi bi-trash"></i>
+                                    </span>
+                                </a>
+                            </td>
+                        </tr>
 
                       {% comment %} Membership delete modal {% endcomment %}
                       <div class="modal fade" id="delete_{{membership.id}}_modal" tabindex="-1" style="display: none;" aria-hidden="true">

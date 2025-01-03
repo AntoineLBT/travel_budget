@@ -2,7 +2,7 @@ import re
 from datetime import date, datetime, timezone
 from typing import Any, Dict, Optional
 
-from crispy_bootstrap5.bootstrap5 import FloatingField
+from crispy_bootstrap5.bootstrap5 import Field, FloatingField
 from crispy_forms import helper
 from crispy_forms.layout import HTML, Div, Layout, Submit
 from django import forms
@@ -359,3 +359,54 @@ def make_delete_member_form() -> forms.Form:
             fields = []
 
     return DeleteMemberForm
+
+
+def make_edit_member_form(trip: Trip, membership: Membership) -> forms.Form:
+    class EditMemberForm(forms.Form):
+
+        can_create_expense = forms.BooleanField(required=False)
+        can_edit_expense = forms.BooleanField(required=False)
+        can_delete_expense = forms.BooleanField(required=False)
+        can_edit_trip = forms.BooleanField(required=False)
+        can_share_trip = forms.BooleanField(required=False)
+        can_delete_trip = forms.BooleanField(required=False)
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            self.helper = helper.FormHelper()
+            self.helper.form_id = "edit-member-form"
+            self.helper.form_method = "post"
+            self.helper.layout = Layout(
+                Div(
+                    Div(
+                        Field("can_create_expense"),
+                        Field("can_delete_expense"),
+                        Field("can_share_trip"),
+                        css_class="col-6",
+                    ),
+                    Div(
+                        Field("can_edit_expense"),
+                        Field("can_edit_trip"),
+                        Field("can_delete_trip"),
+                        css_class="col-6",
+                    ),
+                    css_class="row ms-2",
+                ),
+                Div(
+                    Submit("update", "Update member", css_class="me-2"),
+                    HTML(
+                        f"""<a class="btn btn-secondary" href="""
+                        f"""{reverse("consult-trip", kwargs={"slug": trip.slug})}>"""
+                        f"""Cancel</a>"""
+                    ),
+                    css_class="d-flex justify-content-center",
+                ),
+            )
+
+        def clean(self):
+            cleaned_data = super().clean()
+            cleaned_data["id"] = membership.id
+            return super().clean()
+
+    return EditMemberForm

@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
 from django.db.models.query import QuerySet
+from django.forms import Form
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -17,8 +18,9 @@ from www.mixins import CustomPermissionRequiredMixin
 from www.utility import get_trips_expenses_data, handle_permission
 
 from .forms import (make_delete_expense_form, make_delete_member_form,
-                    make_delete_trip_form, make_edit_profile_form,
-                    make_expense_form, make_join_trip_form, make_login_form,
+                    make_delete_trip_form, make_edit_member_form,
+                    make_edit_profile_form, make_expense_form,
+                    make_join_trip_form, make_login_form,
                     make_registration_form, make_trip_form)
 
 
@@ -327,15 +329,32 @@ class DeleteMemberView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormVi
         return reverse("consult-trip", kwargs={"slug": slug})
 
 
-# class TripMembersView(LoginRequiredMixin, ListView):
-#     template_name = "trip_members.html"
+class EditMemberView(LoginRequiredMixin, FormView):
+    template_name = "edit_member.html"
 
-#     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-#         context = super().get_context_data(**kwargs)
-#         trip_slug = self.request.path.split("/")[2]
-#         context["trip"] = Trip.objects.get(slug=trip_slug)
-#         return context
+    def get_form_class(self):
+        trip = Trip.objects.get(slug=self.request.path.split("/")[2])
+        membership_uuid = self.request.path.split("/")[-1]
+        self.membership = Membership.objects.get(id=membership_uuid)
+        return make_edit_member_form(trip, self.membership)
 
-#     def get_queryset(self) -> QuerySet[Any]:
-#         trip_slug = self.request.path.split("/")[2]
-#         return Trip.objects.get(slug=trip_slug).members.all()
+    def get_success_url(self):
+        trip_slug = self.request.path.split("/")[2]
+        return reverse("consult-trip", kwargs={"slug": trip_slug})
+
+    def form_valid(self, form: Form):
+        membership = Membership.objects.get(id=form.cleaned_data["id"])
+        membership.can_create_expense = form.cleaned_data["can_create_expense"]
+        membership.can_edit_expense = form.cleaned_data["can_edit_expense"]
+        membership.can_delete_expense = form.cleaned_data["can_delete_expense"]
+        membership.can_edit_trip = form.cleaned_data["can_edit_trip"]
+        membership.can_share_trip = form.cleaned_data["can_share_trip"]
+        membership.can_delete_trip = form.cleaned_data["can_delete_trip"]
+        membership.save()
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["membership"] = self.membership
+        return context
