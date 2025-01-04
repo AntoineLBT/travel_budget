@@ -1,6 +1,7 @@
+from bs4 import BeautifulSoup
 from django.test import Client, TestCase
 from django.urls import reverse, reverse_lazy
-from hamcrest import assert_that, contains_string, is_
+from hamcrest import assert_that, contains_string, has_item, is_
 
 from accounting.tests.fixtures import AccountingFixtures
 from www.tests import AuthenticatedClient
@@ -43,7 +44,7 @@ class EditMemberPageTests(TestCase, AccountingFixtures):
 
         assert_that(page.status_code, is_(200))
 
-    def test_edit_membership(self) -> None:
+    def test_edit_membership__post(self) -> None:
         """
         Given a membership without any permission
         When I get the edit membership page and select can_edit_trip
@@ -72,3 +73,24 @@ class EditMemberPageTests(TestCase, AccountingFixtures):
         membership.refresh_from_db()
 
         assert_that(membership.can_edit_trip, is_(True))
+
+    def test_edit_membership__initial_values(self) -> None:
+        membership = self.any_membership()
+        membership.can_create_expense = True
+        membership.save()
+
+        page = self.client.get(
+            reverse(
+                "edit-member",
+                kwargs={"slug": membership.trip.slug, "uuid": membership.id},
+            )
+        )
+
+        assert_that(page.status_code, is_(200))
+
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        assert_that(
+            soup.find("input", attrs={"name": "can_create_expense"}).attrs.keys(),
+            has_item("checked"),
+        )

@@ -403,6 +403,8 @@ def make_edit_member_form(trip: Trip, membership: Membership) -> forms.Form:
                     css_class="d-flex justify-content-center",
                 ),
             )
+            for k, v in self.fields.items():
+                v.initial = getattr(membership, k)
 
         def clean(self):
             cleaned_data = super().clean()
