@@ -18,6 +18,11 @@ def get_permission(trip: Trip, user: User, permission: str):
     )
 
 
+@register.simple_tag(name="is_owner")
+def is_owner(trip_owner: User, membership_user: Membership):
+    return trip_owner == membership_user
+
+
 # TODO : remove
 # @register.filter(name="get_color")
 # def get_color(colors: list, index: int):

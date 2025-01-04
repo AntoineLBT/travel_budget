@@ -111,3 +111,29 @@ class TripPageTests(TestCase, AccountingFixtures):
             soup.find(id="expense_table").find_all("tr")[-1].find("td").text,
             contains_string("61"),
         )
+
+    def test_membership__can_not_edit_owner(self) -> None:
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.members.add(user)
+        trip.save()
+
+        page = self.client.get(reverse("consult-trip", kwargs={"slug": trip.slug}))
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        assert_that(
+            soup.find("a", attrs={"id": f"edit-{user.username}"}).attrs["style"],
+            is_(
+                "background-color: var(--bs-secondary-bg);"
+                "opacity: 1;pointer-events:none;"
+            ),
+        )
+        assert_that(
+            soup.find("a", attrs={"id": f"delete-{user.username}"}).attrs["style"],
+            is_(
+                "background-color: var(--bs-secondary-bg);"
+                "opacity: 1;pointer-events:none;"
+            ),
+        )

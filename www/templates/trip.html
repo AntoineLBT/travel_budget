@@ -73,19 +73,20 @@
                     <tbody>
                       {% get_permission trip user 'can_edit_trip'  as can_edit_trip %}
                       {% for membership in memberships %}
+                      {% is_owner trip.owner membership.user as is_owner %}
                       <tr>
-                            <td scope="row">{{membership.user.username}}</td>
+                            <td scope="row">{{membership.user.username}} {% if is_owner%}<b>(owner)</b>{% endif %}</td>
                             <td>{{membership.membership_date}}</td>
                             <td>{% if membership.total_expenses %}{{membership.total_expenses}}{% else %}0{% endif %}€</td>
                             <td>
-                                <a href="{% url 'edit-member' slug=trip.slug uuid=membership.id %}" class="btn btn-outline-primary"  {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
+                                <a href="{% url 'edit-member' slug=trip.slug uuid=membership.id %}" class="btn btn-outline-primary" id="edit-{{membership.user}}" {% if not can_edit_trip or is_owner %} style="{{disable_button}}" {% endif %}>
                                     <span class="icon">
                                         <i class="bi bi-pencil-square"></i>
                                     </span>
                                 </a>
                             </td>
                             <td>
-                                <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{membership.id}}_modal"  {% if not can_edit_trip %} style="{{disable_button}}" {% endif %}>
+                                <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#delete_{{membership.id}}_modal" id="delete-{{membership.user}}"  {% if not can_edit_trip or is_owner %} style="{{disable_button}}" {% endif %}>
                                     <span class="icon">
                                         <i class="bi bi-trash"></i>
                                     </span>
@@ -114,7 +115,6 @@
                               </div>
                           </div>
                       </div>
-
                       {% endfor %}
                     </tbody>
                   </table>
