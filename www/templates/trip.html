@@ -142,6 +142,7 @@
       <div class="card">
         <div class="card-body">
             <h5 class="card-title">Expenses</h5>
+            {% if page_obj.object_list %}
             <div class="row">
                 <div class="col-6">
                     Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}
@@ -232,6 +233,12 @@
                 </div>
             </div>
             <!-- End Table with hoverable rows -->
+            {% else %}
+            <span class="text-center">
+                <h5>No expense associated yet</h5>
+                <p>You can add one by clicking on <b>+ Expense</b> on the top right corner</p>
+            </span>
+            {% endif %}
         </div>
     </div>
   </div>
