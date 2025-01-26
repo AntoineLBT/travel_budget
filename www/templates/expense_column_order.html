@@ -1,0 +1,16 @@
+{% load custom_tags %}
+{% get_url_order_by_name request.GET column_name as order_url %}
+<a href='?o={{order_url}}'>
+    {% if "-"|add:column_name in request.GET.o %}
+    <i class="bi bi-arrow-down"></i>
+    {% elif column_name in request.GET.o %}
+    <i class="bi bi-arrow-up"></i>
+    {% else %}
+    <i class="bi bi-arrow-down-up"></i>
+    {% endif %}
+</a>
+{% if column_name in request.GET.o %}
+<a href="{% url 'consult-trip' slug=trip.slug %}">
+    <i class="bi bi-x"></i>
+</a>
+{% endif %}

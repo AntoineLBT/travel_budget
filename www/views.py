@@ -238,11 +238,16 @@ class TripView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[Any]:
         slug = slug = self.request.path.split("/")[2]
-        return (
-            Trip.objects.get(slug=slug, members=self.request.user)
-            .expense_set.all()
-            .order_by("-expense_date")
-        )
+        order_by = self.request.GET.get("o")
+        query = Trip.objects.get(slug=slug, members=self.request.user).expense_set.all()
+
+        if order_by:
+            for column in order_by.split("."):
+                query = query.order_by(column)
+        else:
+            query = query.order_by("-expense_date")
+
+        return query
 
 
 class ExpenseView(LoginRequiredMixin, FormView):

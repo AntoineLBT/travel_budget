@@ -112,6 +112,62 @@ class TripPageTests(TestCase, AccountingFixtures):
             contains_string("61"),
         )
 
+    def test_expense_table_can_get_ordered_desc(self) -> None:
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.members.add(user)
+        trip.save()
+
+        for i in range(1, 101):
+            Expense.objects.create(
+                amount=Decimal(i),
+                label=f"exp_{i}",
+                expense_date=str(date.today() + timedelta(days=i)),
+                category=Category.TRANSPORT.value,
+                trip=trip,
+                user=trip.owner,
+            )
+
+        page = self.client.get(
+            f'{reverse("consult-trip", kwargs={"slug": trip.slug})}?o=-amount'
+        )
+
+        soup = BeautifulSoup(page.content, "html.parser")
+        assert_that(
+            soup.find(id="expense_table").find_all("tr")[1].find_all("td")[1].text,
+            contains_string("100.00€"),
+        )
+
+    def test_expense_table_can_get_ordered_asc(self) -> None:
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.members.add(user)
+        trip.save()
+
+        for i in range(1, 101):
+            Expense.objects.create(
+                amount=Decimal(i),
+                label=f"exp_{i}",
+                expense_date=str(date.today() + timedelta(days=i)),
+                category=Category.TRANSPORT.value,
+                trip=trip,
+                user=trip.owner,
+            )
+
+        page = self.client.get(
+            f'{reverse("consult-trip", kwargs={"slug": trip.slug})}?o=amount'
+        )
+
+        soup = BeautifulSoup(page.content, "html.parser")
+        assert_that(
+            soup.find(id="expense_table").find_all("tr")[1].find_all("td")[1].text,
+            contains_string("1.00€"),
+        )
+
     def test_membership__can_not_edit_owner(self) -> None:
 
         user = User.objects.get(id=self.client.session["_auth_user_id"])
