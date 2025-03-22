@@ -80,6 +80,7 @@ class Expense(models.Model):
         (Category.ACTIVITY.value, "Activity"),
         (Category.RESTAURANT.value, "Restaurant"),
         (Category.ADMINISTRATIVE.value, "Administrative"),
+        (Category.ACCOMMODATION.value, "Accommodation"),
     ]
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
     amount: float = models.DecimalField(name="amount", decimal_places=2, max_digits=20)

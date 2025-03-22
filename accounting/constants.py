@@ -8,3 +8,4 @@ class Category(Enum):
     RESTAURANT = "restaurant"
     MEDICAL = "medical"
     ADMINISTRATIVE = "administrative"
+    ACCOMMODATION = "accommodation"
