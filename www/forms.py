@@ -200,6 +200,7 @@ def make_trip_form(trip: Optional[Trip] = None) -> forms.Form:
                 self.fields["budget"].initial = trip.budget
 
         def clean(self):
+            self.cleaned_data["id"] = self.trip.id if self.trip else None
             if self.cleaned_data["start_date"] >= self.cleaned_data["end_date"]:
                 raise ValidationError("Starting date can't be after the ending date")
 

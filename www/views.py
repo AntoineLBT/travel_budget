@@ -129,19 +129,28 @@ class CreateTripView(LoginRequiredMixin, FormView):
         return make_trip_form(trip=trip)
 
     def form_valid(self, form):
-        trip = Trip.objects.create(
-            name=form.cleaned_data["name"],
-            description=form.cleaned_data["description"],
-            start_date=form.cleaned_data["start_date"],
-            end_date=form.cleaned_data["end_date"],
-            budget=form.cleaned_data["budget"],
-            owner=self.request.user,
+        trip, created = Trip.objects.update_or_create(
+            id=form.cleaned_data["id"],
+            defaults={
+                "name": form.cleaned_data["name"],
+                "description": form.cleaned_data["description"],
+                "start_date": form.cleaned_data["start_date"],
+                "end_date": form.cleaned_data["end_date"],
+                "budget": form.cleaned_data["budget"],
+                "owner": self.request.user,
+            },
         )
-        trip.members.add(self.request.user)
+
+        if created:
+            trip.members.add(self.request.user)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        return reverse("dashboard")
+        return (
+            reverse("consult-trip", kwargs={"slug": self.request.path.split("/")[2]})
+            if "edit" in self.request.path
+            else reverse("dashboard")
+        )
 
 
 class JoinTripView(LoginRequiredMixin, FormView):

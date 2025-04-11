@@ -89,6 +89,40 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
             contains_string("Starting date"),
         )
 
+    def test_delete_member_from_trip(self) -> None:
+        """
+        Given a trip with a one member
+        When I delete this member
+        Then it return the trip page without the member,
+        and the member has been removed from the members and membership as been deleted.
+        """
+
+        user = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip = self.any_trip()
+        trip.owner = user
+        trip.save()
+
+        membership = Membership.objects.get(trip=trip)
+
+        page = self.client.post(
+            reverse(
+                "delete-member",
+                kwargs={"slug": trip.slug, "uuid": membership.id},
+            ),
+            data={"id": membership.id},
+        )
+
+        assert_that(
+            page.url,
+            is_(reverse("consult-trip", kwargs={"slug": trip.slug})),
+        )
+        assert_that(Membership.objects.count(), is_(0))
+
+
+class EditTripPageTest(TestCase, AccountingFixtures):
+
+    client_class = AuthenticatedClient
+
     def test_edit_trip_initial(self) -> None:
         """
         Given a client and a trip
@@ -130,31 +164,37 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
             is_(float(trip.budget)),
         )
 
-    def test_delete_member_from_trip(self) -> None:
+    def test_edit_form_trip(self) -> None:
         """
-        Given a trip with a one member
-        When I delete this member
-        Then it return the trip page without the member,
-        and the member has been removed from the members and membership as been deleted.
+        Given an existing trip
+        When I edit it with a new name
+        Then it return the trip page with the new name
         """
 
         user = User.objects.get(id=self.client.session["_auth_user_id"])
         trip = self.any_trip()
         trip.owner = user
+        trip.members.add(user)
         trip.save()
 
-        membership = Membership.objects.get(trip=trip)
+        new_name = "test"
 
         page = self.client.post(
-            reverse(
-                "delete-member",
-                kwargs={"slug": trip.slug, "uuid": membership.id},
-            ),
-            data={"id": membership.id},
+            reverse("edit-trip", kwargs={"slug": trip.slug}),
+            data={
+                "name": new_name,
+                "description": "Mon premier voyage sur un autre continent",
+                "start_date": "2024-02-25",
+                "end_date": "2024-04-25",
+                "budget": Decimal(1),
+            },
+            follow=True,
         )
 
+        trip.refresh_from_db()
+
         assert_that(
-            page.url,
+            page.wsgi_request.path,
             is_(reverse("consult-trip", kwargs={"slug": trip.slug})),
         )
-        assert_that(Membership.objects.count(), is_(0))
+        assert_that(trip.name, is_(new_name))
