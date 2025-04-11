@@ -18,15 +18,16 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 
-from accounting.views import ExpenseViewSet
+from accounting.api.views import ExpenseViewset, TripViewset
 
-router = routers.DefaultRouter()
-router.register(r"expenses", ExpenseViewSet)
+router = routers.SimpleRouter()
+router.register("trip", TripViewset, basename="trip")
+router.register("expense", ExpenseViewset, basename="expense")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("api/", include(router.urls)),
     path("", include("www.urls")),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
