@@ -11,8 +11,8 @@ from ..models import Expense, Membership, Trip, TripToken
 
 
 class AccountingFixtures(UserFixtures):
-    def any_trip(self) -> Trip:
-        user = self.any_user()
+    def any_trip(self, user: User | None = None) -> Trip:
+        user = user or self.any_user()
         trip = Trip.objects.create(
             owner=user,
             name="World Tour",
