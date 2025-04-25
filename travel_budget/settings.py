@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "accounts",
     "accounting",
     "rest_framework",
+    "rest_framework_simplejwt",
     "www",
 ]
 
@@ -191,3 +192,12 @@ STATIC_URL = "/static/"
 #         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
 #     },
 # }
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
