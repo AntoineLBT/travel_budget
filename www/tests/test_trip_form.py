@@ -55,6 +55,7 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
                 "start_date": "2024-02-25",
                 "end_date": "2024-04-25",
                 "budget": Decimal(1),
+                "preferred_currency": "EUR",
             },
             follow=True,
         )
@@ -65,6 +66,7 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
         assert result_trip
         assert_that(result_trip.name, is_(trip_name))
         assert_that(result_trip.owner.username, is_(page.wsgi_request.user.username))
+        assert_that(result_trip.preferred_currency, is_("EUR"))
 
     def test_create_trip_date_consistence(self) -> None:
         """
@@ -80,6 +82,7 @@ class CreateTripPageTests(TestCase, AccountingFixtures):
                 "start_date": "2024-02-25",
                 "end_date": "2024-01-25",
                 "budget": Decimal(1),
+                "preferred_currency": "EUR",
             },
             follow=True,
         )
@@ -187,6 +190,7 @@ class EditTripPageTest(TestCase, AccountingFixtures):
                 "start_date": "2024-02-25",
                 "end_date": "2024-04-25",
                 "budget": Decimal(1),
+                "preferred_currency": "EUR",
             },
             follow=True,
         )

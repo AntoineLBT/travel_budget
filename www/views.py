@@ -144,6 +144,7 @@ class CreateTripView(LoginRequiredMixin, FormView):
                 "start_date": form.cleaned_data["start_date"],
                 "end_date": form.cleaned_data["end_date"],
                 "budget": form.cleaned_data["budget"],
+                "preferred_currency": form.cleaned_data["preferred_currency"],
                 "owner": self.request.user,
             },
         )

@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from accounts.models import User
 
-from .constants import Category
+from .constants import CATEGORY_CHOICES, CURRENCY_CHOICES, Category
 
 
 @dataclass
@@ -38,6 +38,14 @@ class Trip(models.Model):
         name="budget", decimal_places=2, max_digits=20, default=0
     )
     slug = models.SlugField(blank=True, null=True, unique=True)
+    preferred_currency = models.CharField(
+        max_length=len(
+            max([tuple_currency[1] for tuple_currency in CURRENCY_CHOICES], key=len)
+        ),
+        choices=CURRENCY_CHOICES,
+        null=True,
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         if self.slug is None:
@@ -74,14 +82,6 @@ class Trip(models.Model):
 
 
 class Expense(models.Model):
-    CATEGORY_CHOICES = [
-        (Category.TRANSPORT.value, "Transport"),
-        (Category.GROCERY.value, "Grocery"),
-        (Category.ACTIVITY.value, "Activity"),
-        (Category.RESTAURANT.value, "Restaurant"),
-        (Category.ADMINISTRATIVE.value, "Administrative"),
-        (Category.ACCOMMODATION.value, "Accommodation"),
-    ]
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
     amount: float = models.DecimalField(name="amount", decimal_places=2, max_digits=20)
     label: str = models.CharField(name="label", max_length=255, default="")

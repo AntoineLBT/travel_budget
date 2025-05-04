@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
-from accounting.constants import Category
+from accounting.constants import CURRENCY_CHOICES, Category
 from accounting.models import Expense, Membership, Trip, TripToken
 from accounts.constants import Country, Currency
 from accounts.models import User
@@ -166,6 +166,10 @@ def make_trip_form(trip: Optional[Trip] = None) -> forms.Form:
         )
         budget = forms.DecimalField(required=True)
 
+        preferred_currency: str = forms.ChoiceField(
+            choices=[(cur[0], cur[1]) for cur in CURRENCY_CHOICES]
+        )
+
         def __init__(self, *args, **kwargs):
 
             submit_text = "Edit this trip" if trip else "Create this trip"
@@ -186,6 +190,7 @@ def make_trip_form(trip: Optional[Trip] = None) -> forms.Form:
                 FloatingField("start_date"),
                 FloatingField("end_date"),
                 FloatingField("budget"),
+                "preferred_currency",
                 Div(
                     Submit("create", submit_text, css_class="me-2"),
                     HTML(f'<a class="btn btn-secondary" href={cancel_url}>Cancel</a>'),
@@ -198,6 +203,7 @@ def make_trip_form(trip: Optional[Trip] = None) -> forms.Form:
                 self.fields["start_date"].initial = trip.start_date
                 self.fields["end_date"].initial = trip.end_date
                 self.fields["budget"].initial = trip.budget
+                self.fields["preferred_currency"].initial = trip.preferred_currency
 
         def clean(self):
             self.cleaned_data["id"] = self.trip.id if self.trip else None

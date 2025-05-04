@@ -20,6 +20,7 @@ class AccountingFixtures(UserFixtures):
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
             budget=Decimal(10000),
+            preferred_currency="EUR",
         )
         trip.members.add(user)
         return trip
