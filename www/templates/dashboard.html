@@ -17,27 +17,18 @@
                     <li class="list-group-item" aria-current="true">
                         <div class="row">
                             <div class="col">
-                                <b>{{ trip.name }}</b><br>
+                                <a href="{% url 'consult-trip' slug=trip.slug %}"><b>{{ trip.name }}</b><br></a>
                                 starting : {{ trip.start_date }}<br>
                                 ending : {{ trip.end_date }}<br>
                                 Total expenses : {% if trip.total_expenses %}{{ trip.total_expenses|floatformat:2 }}€{%else %}---{% endif %}<br>
                             </div>
                             {% with disable_button="background-color: var(--bs-secondary-bg);opacity: 1;pointer-events:none;" %}
-                            <div class="col-auto p-0">
+                            <div class="col-auto">
                                 <div class="d-flex justify-content-end">
                                     {% get_permission trip user 'can_share_trip'  as can_share_trip %}
                                     <a href="{% url 'share-trip' slug=trip.slug %}" class="btn btn-primary" {% if not can_share_trip %} style="{{disable_button}}" {% endif %}>
                                         <span class="icon fs-5">
                                             <i class="bi bi-share"></i>
-                                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="d-flex justify-content-end">
-                                    <a href="{% url 'consult-trip' slug=trip.slug %}" class="btn btn-success">
-                                        <span class="icon fs-5">
-                                            <i class="bi bi-eye"></i>
                                         </span>
                                     </a>
                                 </div>

@@ -71,13 +71,13 @@
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <form action="{%url 'logout'%}" method="post">
+                <form action="{%url 'logout'%}" method="POST">
                 {% csrf_token %}
                   <li>
-                    <a class="dropdown-item d-flex align-items-center" href="/logout" type="submit">
+                    <button class="dropdown-item d-flex align-items-center" href="/logout" type="submit">
                       <i class="bi bi-box-arrow-right"></i>
                       <span>Sign Out</span>
-                    </a>
+                    </button>
                   </li>
                 </form>
               
