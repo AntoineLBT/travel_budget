@@ -66,10 +66,16 @@ jobs:
         run: |
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
             set -e
-            rm -rf travel_bugdet_2 || true
-            git clone https://github.com/${{ github.repository }} travel_bugdet_2
-            cd travel_bugdet_2
+            rm -rf travel_budget_2 || true
+            git clone https://github.com/${{ github.repository }} travel_budget_2
+            cd travel_budget_2
+            echo POSTGRES_DB=travel_budget_db > .env
+            echo POSTGRES_USER=admin >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=db >> .env
+            echo DB_PORT=5432 >> .env
             docker compose build
+            docker compose down
             docker compose up -db
             docker system prune -f
           EOF
