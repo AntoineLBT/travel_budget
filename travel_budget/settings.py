@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get(
 # DEBUG = True
 DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
 
-ALLOWED_HOSTS = ["antoinelbt.pythonanywhere.com", "127.0.0.1", "localhost", "0.0.0.0"]
+ALLOWED_HOSTS = ["159.69.107.175", "127.0.0.1", "localhost", "0.0.0.0"]
 CSRF_TRUSTED_ORIGINS = ["https://AntoineLBT.pythonanywhere.com"]
 
 
