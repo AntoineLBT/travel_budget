@@ -45,3 +45,31 @@ jobs:
       run: |
         coverage run --omit="manage.py","travel_budget/*" --source='.' manage.py test
         coverage report --fail-under=100
+
+  deploy:
+    if: github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout (not needed for remote clone but useful for other tasks)
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.REMOTE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Clone repo & build with Docker on remote
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+            set -e
+            rm -rf travel_bugdet_2 || true
+            git clone https://github.com/${{ github.repository }} travel_bugdet_2
+            cd travel_bugdet_2
+            docker compose build
+            docker compose up -db
+            docker system prune -f
+          EOF
