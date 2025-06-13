@@ -75,7 +75,7 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=db >> .env
             echo DB_PORT=5432 >> .env
-            echo VOLUME_PATH=../data/postgresql
+            echo VOLUME_PATH=../data/postgresql >> .env
             docker compose build
             docker compose down
             docker compose up -d
