@@ -78,6 +78,6 @@ jobs:
             echo VOLUME_PATH=../data/postgresql
             docker compose build
             docker compose down
-            docker compose up -db
+            docker compose up -d
             docker system prune -f
           EOF
