@@ -3,7 +3,7 @@ services:
   web:
     build: .
     container_name: django_app
-    command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+    command: "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -20,7 +20,7 @@ services:
     image: postgres:16
     container_name: postgres_db
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data # Mounting to a host directory
+      - ${VOLUME_PATH:-./data/postgresql}:/var/lib/postgresql/data # Mounting to a host directory
     ports:
       - "5432:5432"
     env_file:
