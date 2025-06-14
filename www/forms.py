@@ -240,6 +240,9 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
         category: str = forms.ChoiceField(
             choices=[(cat.value, cat.name) for cat in Category]
         )
+        paid_by: User = forms.ChoiceField(
+            choices=[(member.id, member.username) for member in trip.members.all()]
+        )
 
         def __init__(self, *args, **kwargs):
 
@@ -256,6 +259,7 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 FloatingField("label"),
                 FloatingField("expense_date"),
                 "category",
+                "paid_by",
                 Div(
                     Submit("Add", submit_text, css_class="me-2"),
                     HTML(
@@ -271,6 +275,7 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 self.fields["label"].initial = expense.label
                 self.fields["expense_date"].initial = expense.expense_date
                 self.fields["category"].initial = expense.category
+                self.fields["paid_by"].initial = expense.user
 
         def clean(self):
             self.cleaned_data["trip"] = self.trip

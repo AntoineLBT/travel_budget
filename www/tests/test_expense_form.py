@@ -68,6 +68,7 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "expense_date": "2024-03-25",
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
+                "paid_by": trip.owner.id,
             },
         )
         assert_that(
@@ -104,6 +105,7 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "expense_date": "2024-02-25",
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
+                "paid_by": trip.owner,
             },
         )
         assert_that(
