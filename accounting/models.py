@@ -2,6 +2,7 @@ import random
 import string
 from dataclasses import dataclass
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -125,3 +126,18 @@ class Membership(models.Model):
         return self.trip.expense_set.filter(user=self.user).aggregate(Sum("amount"))[
             "amount__sum"
         ]
+
+    @property
+    def balance(self) -> str:
+        total_trip_expenses: int = self.trip.expense_set.aggregate(Sum("amount"))[
+            "amount__sum"
+        ]
+        balance = round(
+            -1
+            * (
+                (total_trip_expenses / self.trip.members.count())
+                - (self.total_expenses or Decimal(0))
+            ),
+            2,
+        )
+        return f"{'+' if balance > 0 else ''}{balance}"

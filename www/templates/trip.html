@@ -64,7 +64,7 @@
                     <thead>
                       <tr>
                           <th scope="col">Username</th>
-                          <th scope="col">Since</th>
+                          <th scope="col">Balance</th>
                           <th scope="col">Expenses</th>
                           <th scope="col">Edit</th>
                           <th scope="col">Delete</th>
@@ -76,7 +76,7 @@
                       {% is_owner trip.owner membership.user as is_owner %}
                       <tr>
                             <td scope="row">{{membership.user.username}} {% if is_owner%}<b>(owner)</b>{% endif %}</td>
-                            <td>{{membership.membership_date}}</td>
+                            <td>{% if membership.balance != "-0.00" %}{{membership.balance}}{% else %}0{% endif %}€</td>
                             <td>{% if membership.total_expenses %}{{membership.total_expenses}}{% else %}0{% endif %}€</td>
                             <td>
                                 <a href="{% url 'edit-member' slug=trip.slug uuid=membership.id %}" class="btn btn-outline-primary" id="edit-{{membership.user}}" {% if not can_edit_trip or is_owner %} style="{{disable_button}}" {% endif %}>
@@ -136,6 +136,21 @@
         </div>
     </div>
 </div>
+
+{% comment %} <div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h5 class="card-title">Refund summary</h5>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
 
 <div class="row">
     <div class="col-lg-12">
