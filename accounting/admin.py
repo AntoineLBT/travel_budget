@@ -10,4 +10,4 @@ class TripAdmin(admin.ModelAdmin):
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ["amount", "label", "expense_date", "category"]
+    list_display = ["converted_amount", "label", "expense_date", "category"]

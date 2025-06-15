@@ -32,10 +32,12 @@ class AccountingFixtures(UserFixtures):
         return Expense.objects.create(
             label="achat voiture",
             amount=amount,
+            converted_amount=amount,
             category=Category.TRANSPORT.value,
             expense_date=trip.start_date,
             trip=trip,
             user=user,
+            currency="EUR",
         )
 
     def any_trip_token(self, trip: Trip) -> TripToken:

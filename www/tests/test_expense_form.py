@@ -69,6 +69,8 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
                 "paid_by": trip.owner.id,
+                "converted_amount": Decimal(500.23),
+                "currency": "EUR",
             },
         )
         assert_that(
@@ -106,6 +108,8 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
                 "paid_by": trip.owner,
+                "converted_amount": Decimal(500.23),
+                "currency": "EUR",
             },
         )
         assert_that(

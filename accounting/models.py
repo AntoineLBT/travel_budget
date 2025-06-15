@@ -84,6 +84,9 @@ class Trip(models.Model):
 
 class Expense(models.Model):
     id: UUID = models.UUIDField(primary_key=True, default=uuid4)
+    converted_amount: float = models.DecimalField(
+        decimal_places=2, max_digits=20, null=True, blank=True
+    )
     amount: float = models.DecimalField(name="amount", decimal_places=2, max_digits=20)
     label: str = models.CharField(name="label", max_length=255, default="")
     expense_date: date = models.DateField(name="expense_date")
@@ -95,6 +98,14 @@ class Expense(models.Model):
         blank=True,
     )
     user: User = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    currency = models.CharField(
+        max_length=len(
+            max([tuple_currency[1] for tuple_currency in CURRENCY_CHOICES], key=len)
+        ),
+        choices=CURRENCY_CHOICES,
+        null=True,
+        blank=True,
+    )
 
 
 class TripToken(models.Model):

@@ -226,7 +226,7 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
     class ExpenseForm(forms.Form):
 
         amount = forms.DecimalField(
-            required=True, initial=expense.amount if expense else None
+            required=False, initial=expense.amount if expense else None
         )
         label: str = forms.CharField(
             max_length=255,
@@ -240,8 +240,13 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
         category: str = forms.ChoiceField(
             choices=[(cat.value, cat.name) for cat in Category]
         )
-        paid_by: User = forms.ChoiceField(
+        paid_by: int = forms.ChoiceField(
             choices=[(member.id, member.username) for member in trip.members.all()]
+        )
+        currency: str = forms.ChoiceField(choices=CURRENCY_CHOICES)
+
+        converted_amount = forms.DecimalField(
+            required=True, initial=expense.converted_amount if expense else None
         )
 
         def __init__(self, *args, **kwargs):
@@ -260,6 +265,8 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 FloatingField("expense_date"),
                 "category",
                 "paid_by",
+                "currency",
+                FloatingField("converted_amount"),
                 Div(
                     Submit("Add", submit_text, css_class="me-2"),
                     HTML(
@@ -276,6 +283,10 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 self.fields["expense_date"].initial = expense.expense_date
                 self.fields["category"].initial = expense.category
                 self.fields["paid_by"].initial = expense.user
+                self.fields["currency"].initial = expense.currency
+                self.fields["converted_amount"].initial = expense.converted_amount
+            else:
+                self.fields["currency"].initial = trip.preferred_currency
 
         def clean(self):
             self.cleaned_data["trip"] = self.trip

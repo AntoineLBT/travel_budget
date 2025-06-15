@@ -17,11 +17,18 @@ from accounts.models import User
 from www.mixins import CustomPermissionRequiredMixin
 from www.utility import get_trips_expenses_data, handle_permission
 
-from .forms import (make_delete_expense_form, make_delete_member_form,
-                    make_delete_trip_form, make_edit_member_form,
-                    make_edit_profile_form, make_expense_form,
-                    make_join_trip_form, make_login_form,
-                    make_registration_form, make_trip_form)
+from .forms import (
+    make_delete_expense_form,
+    make_delete_member_form,
+    make_delete_trip_form,
+    make_edit_member_form,
+    make_edit_profile_form,
+    make_expense_form,
+    make_join_trip_form,
+    make_login_form,
+    make_registration_form,
+    make_trip_form,
+)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -304,6 +311,8 @@ class ExpenseView(LoginRequiredMixin, FormView):
                 "trip": form.cleaned_data["trip"],
                 "category": form.cleaned_data["category"],
                 "user": User.objects.get(id=form.cleaned_data["paid_by"]),
+                "currency": form.cleaned_data["currency"],
+                "converted_amount": form.cleaned_data["converted_amount"],
             },
         )
         return super().form_valid(form)
