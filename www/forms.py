@@ -245,10 +245,6 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
         )
         currency: str = forms.ChoiceField(choices=CURRENCY_CHOICES)
 
-        converted_amount = forms.DecimalField(
-            required=True, initial=expense.converted_amount if expense else None
-        )
-
         def __init__(self, *args, **kwargs):
 
             submit_text = "Edit this expense" if expense else "Add this expense"
@@ -266,7 +262,9 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 "category",
                 "paid_by",
                 "currency",
-                FloatingField("converted_amount"),
+                HTML(
+                    '<div id="converted-amount">{% if converted_amount %}Converted: {{ converted_amount }} {{ selected_currency }}{% endif %}</div></br>'
+                ),
                 Div(
                     Submit("Add", submit_text, css_class="me-2"),
                     HTML(
@@ -284,9 +282,30 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 self.fields["category"].initial = expense.category
                 self.fields["paid_by"].initial = expense.user
                 self.fields["currency"].initial = expense.currency
-                self.fields["converted_amount"].initial = expense.converted_amount
             else:
                 self.fields["currency"].initial = trip.preferred_currency
+
+            conversion_url = reverse("htmx-convert-amount", kwargs={"slug": trip.slug})
+
+            currency_hx_attrs = {
+                "hx-get": conversion_url,
+                "hx-trigger": "change from:#id_currency changed delay:200ms",
+                "hx-target": "#converted-amount",
+                "hx-swap": "innerHTML",
+                # include both amount and currency in the GET request:
+                "hx-include": "#id_amount, #id_currency",
+            }
+            # Update widget attrs on the currency field
+            self.fields["currency"].widget.attrs.update(currency_hx_attrs)
+
+            # amount_hx_attrs = {
+            #     "hx-get": conversion_url,
+            #     "hx-trigger": "change from:#id_amount changed delay:300ms",
+            #     "hx-target": "#converted-amount",
+            #     "hx-swap": "innerHTML",
+            #     "hx-include": "#id_amount, #id_currency",
+            # }
+            # self.fields["amount"].widget.attrs.update(amount_hx_attrs)
 
         def clean(self):
             self.cleaned_data["trip"] = self.trip

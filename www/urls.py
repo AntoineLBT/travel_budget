@@ -1,10 +1,24 @@
 from django.urls import path
 
-from .views import (CreateTripView, CustomLogoutView, DashboardView,
-                    DeleteExpenseView, DeleteMemberView, DeleteTripView,
-                    EditMemberView, EditProfileView, ExpenseView,
-                    HTMXGenerateTokenView, JoinTripView, LoginView,
-                    ProfileView, RegistrationView, ShareTripView, TripView)
+from .views import (
+    CreateTripView,
+    CustomLogoutView,
+    DashboardView,
+    DeleteExpenseView,
+    DeleteMemberView,
+    DeleteTripView,
+    EditMemberView,
+    EditProfileView,
+    ExpenseView,
+    HTMXConvertAmount,
+    HTMXGenerateTokenView,
+    JoinTripView,
+    LoginView,
+    ProfileView,
+    RegistrationView,
+    ShareTripView,
+    TripView,
+)
 
 urlpatterns = [
     path("dashboard", DashboardView.as_view(), name="dashboard"),
@@ -29,6 +43,11 @@ urlpatterns = [
         "trip/<slug:slug>/share/generate_token",
         HTMXGenerateTokenView.as_view(),
         name="htmx-generate-token",
+    ),
+    path(
+        "trip/<slug:slug>/expense/convert_amount",
+        HTMXConvertAmount.as_view(),
+        name="htmx-convert-amount",
     ),
     path("trip/<slug:slug>/edit", CreateTripView.as_view(), name="edit-trip"),
     path("join_trip", JoinTripView.as_view(), name="join-trip"),

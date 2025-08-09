@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from secrets import token_urlsafe
 from typing import Any
 
@@ -13,6 +14,7 @@ from django.urls import reverse
 from django.views.generic import FormView, ListView, TemplateView
 
 from accounting.models import Expense, Membership, Trip, TripToken
+from accounting.services import CurrencyRatesGetter
 from accounts.models import User
 from www.mixins import CustomPermissionRequiredMixin
 from www.utility import get_trips_expenses_data, handle_permission
@@ -220,6 +222,36 @@ class HTMXGenerateTokenView(
         )
 
 
+class HTMXConvertAmount(
+    LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView
+):
+
+    template_name: str = "htmx/converted_amount.html"
+    permissions = "can_create_expense"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        slug = self.request.path.split("/")[2]
+        trip: Trip = Trip.objects.filter(members=self.request.user, slug=slug).first()
+
+        amount = Decimal(self.request.GET.get("amount"))
+        currency = self.request.GET.get("currency")
+        context["converted_amount"] = CurrencyRatesGetter.convert_amount(
+            currency, trip.preferred_currency, amount
+        )
+        context["target_currency"] = trip.preferred_currency
+
+        return context
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        return render(
+            request=request,
+            context=self.get_context_data(),
+            template_name=self.template_name,
+        )
+
+
 class DeleteTripView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
 
     permissions = "can_delete_trip"
@@ -301,7 +333,19 @@ class ExpenseView(LoginRequiredMixin, FormView):
         trip_slug = self.request.path.split("/")[2]
         return reverse("consult-trip", kwargs={"slug": trip_slug})
 
-    def form_valid(self, form):
+    def form_valid(self, form: Form):
+
+        converted_amount = (
+            CurrencyRatesGetter.convert_amount(
+                form.cleaned_data["trip"].preferred_currency,
+                form.cleaned_data["currency"],
+                form.cleaned_data["amount"],
+            )
+            if form.cleaned_data["currency"]
+            != form.cleaned_data["trip"].preferred_currency
+            else form.cleaned_data["amount"]
+        )
+
         Expense.objects.update_or_create(
             id=form.cleaned_data["id"],
             defaults={
@@ -312,7 +356,7 @@ class ExpenseView(LoginRequiredMixin, FormView):
                 "category": form.cleaned_data["category"],
                 "user": User.objects.get(id=form.cleaned_data["paid_by"]),
                 "currency": form.cleaned_data["currency"],
-                "converted_amount": form.cleaned_data["converted_amount"],
+                "converted_amount": converted_amount,
             },
         )
         return super().form_valid(form)

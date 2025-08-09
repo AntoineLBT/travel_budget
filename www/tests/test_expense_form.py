@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from bs4 import BeautifulSoup
+from django.http import QueryDict
 from django.test import Client, TestCase
 from django.urls import reverse, reverse_lazy
 from hamcrest import assert_that, contains_string, is_
@@ -69,7 +70,6 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
                 "paid_by": trip.owner.id,
-                "converted_amount": Decimal(500.23),
                 "currency": "EUR",
             },
         )
@@ -82,6 +82,40 @@ class ExpensePageTests(TestCase, AccountingFixtures):
         assert result_expense
         assert_that(result_expense.label, is_(expense_label))
         assert_that(result_expense.trip, is_(trip))
+
+    def test_create_valid_expense_with_conversion(self) -> None:
+        """
+        Given a client and valid data with a different currency than the trip to create an expense
+        When I post on the create expense page
+        Then it return a the trip consult page and the expense has been created
+        """
+
+        assert_that(Expense.objects.count(), is_(0))
+
+        expense_label = "Réparation voiture"
+        trip = self.any_trip()
+        page = self.client.post(
+            reverse("create-expense", kwargs={"slug": trip.slug}),
+            data={
+                "amount": Decimal(500.23),
+                "label": expense_label,
+                "expense_date": "2024-03-25",
+                "category": Category.TRANSPORT.value,
+                "trip": trip,
+                "paid_by": trip.owner.id,
+                "currency": "USD",
+            },
+        )
+        assert_that(
+            page.url,
+            is_(reverse_lazy("consult-trip", kwargs={"slug": trip.slug})),
+        )
+        assert_that(Expense.objects.count(), is_(1))
+        result_expense = Expense.objects.first()
+        assert result_expense
+        assert_that(result_expense.label, is_(expense_label))
+        assert_that(result_expense.trip, is_(trip))
+        assert result_expense.amount != result_expense.converted_amount
 
     def test_create_expense_date_consistence(self) -> None:
         """
@@ -108,7 +142,6 @@ class ExpensePageTests(TestCase, AccountingFixtures):
                 "category": Category.TRANSPORT.value,
                 "trip": trip,
                 "paid_by": trip.owner,
-                "converted_amount": Decimal(500.23),
                 "currency": "EUR",
             },
         )
@@ -152,3 +185,40 @@ class ExpensePageTests(TestCase, AccountingFixtures):
             soup.find("form").find("input", attrs={"name": "label"}).attrs["value"],
             is_(expense.label),
         )
+
+
+class HTMXConvertAmount(TestCase, AccountingFixtures):
+
+    client_class = AuthenticatedClient
+
+    def test_convert_amount_login_required(self) -> None:
+        """
+        Given a unauthenticated client
+        When I get the htmx converted amount page
+        Then it redirect to the login page
+        """
+        dummy_client = Client()
+        page = dummy_client.get(
+            reverse("htmx-convert-amount", kwargs={"slug": self.any_trip().slug})
+        )
+        assert_that(page.status_code, is_(302))
+        assert_that(page.url, contains_string("login"))
+
+    def test_convert_amount(self) -> None:
+        trip = self.any_trip()
+        trip.owner = User.objects.get(id=self.client.session["_auth_user_id"])
+        trip.members.add(User.objects.get(id=self.client.session["_auth_user_id"]))
+        trip.start_date = date(2024, 3, 23)
+        trip.end_date = date(2024, 3, 31)
+        trip.save()
+
+        page = self.client.get(
+            reverse(
+                "htmx-convert-amount",
+                kwargs={"slug": trip.slug},
+            ),
+            data={"amount": 300, "currency": "USD"},
+        )
+
+        assert page.status_code == 200
+        assert "EUR" in str(page.content)
