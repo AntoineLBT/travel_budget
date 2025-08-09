@@ -263,7 +263,9 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
                 "paid_by",
                 "currency",
                 HTML(
-                    '<div id="converted-amount">{% if converted_amount %}Converted: {{ converted_amount }} {{ selected_currency }}{% endif %}</div></br>'
+                    '<div id="converted-amount">{% if converted_amount %}Converted: '
+                    "{{ converted_amount }} {{ selected_currency }}{% endif %}</div>"
+                    "</br>"
                 ),
                 Div(
                     Submit("Add", submit_text, css_class="me-2"),

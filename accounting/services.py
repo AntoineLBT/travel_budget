@@ -20,10 +20,11 @@ class CurrencyRatesGetter:
         from_currency: str, to_currency: str, amount: Decimal
     ) -> Decimal | None:
 
+        address = (
+            f"https://api.frankfurter.app/latest?from={from_currency}&to={to_currency}"
+        )
         if from_currency != to_currency:
-            rate_response = get(
-                f"https://api.frankfurter.app/latest?from={from_currency}&to={to_currency}"
-            )
+            rate_response = get(address)
 
             current_rate = rate_response.json()["rates"][to_currency]
             return round(amount * Decimal(current_rate), 2)

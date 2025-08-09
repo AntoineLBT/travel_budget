@@ -2,7 +2,6 @@ from datetime import date
 from decimal import Decimal
 
 from bs4 import BeautifulSoup
-from django.http import QueryDict
 from django.test import Client, TestCase
 from django.urls import reverse, reverse_lazy
 from hamcrest import assert_that, contains_string, is_
@@ -85,7 +84,8 @@ class ExpensePageTests(TestCase, AccountingFixtures):
 
     def test_create_valid_expense_with_conversion(self) -> None:
         """
-        Given a client and valid data with a different currency than the trip to create an expense
+        Given a client and valid data with a different currency
+        than the trip to create an expense
         When I post on the create expense page
         Then it return a the trip consult page and the expense has been created
         """
