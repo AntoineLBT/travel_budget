@@ -32,10 +32,19 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
+DEBUG = os.getenv("DJANGO_DEBUG", None) != "False"
 
-ALLOWED_HOSTS = ["159.69.107.175", "127.0.0.1", "localhost", "0.0.0.0"]
-CSRF_TRUSTED_ORIGINS = ["https://AntoineLBT.pythonanywhere.com"]
+ALLOWED_HOSTS = [
+    "159.69.107.175",
+    "127.0.0.1",
+    "localhost",
+    "0.0.0.0",
+    "www.travel-budget.eu",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.travel-budget.eu",
+    "https://travel-budget.eu",
+]
 
 
 # Application definition
@@ -201,6 +210,3 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
-
-
-STAGE = "dev"

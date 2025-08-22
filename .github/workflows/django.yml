@@ -76,6 +76,7 @@ jobs:
             echo DB_HOST=db >> .env
             echo DB_PORT=5432 >> .env
             echo ROOT_PATH=.. >> .env
+            echo DJANGO_DEBUG=False >> .env
             docker compose build
             docker compose down
             docker compose up -d
