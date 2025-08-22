@@ -149,15 +149,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
-STATIC_URL = "static/"
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "www/static"),
-]
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -186,22 +177,15 @@ if "DATABASE_URL" in os.environ:
     )
 
 
-# The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# The URL to use when referring to static files (where they will be served from)
+# URL used in your HTML templates
 STATIC_URL = "/static/"
 
+# Directory where collectstatic will put all static files
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# # Static file serving to reduce the file of static file
-# # https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
-# STORAGES = {
-#     # ...
-#     "staticfiles": {
-#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-#     },
-# }
 
+# Whitenoise storage (for compressed + versioned files)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
