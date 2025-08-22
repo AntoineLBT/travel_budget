@@ -257,16 +257,16 @@ def make_expense_form(trip: Trip, expense: Optional[Expense] = None) -> forms.Fo
             self.helper.form_method = "post"
             self.helper.layout = Layout(
                 FloatingField("amount"),
-                FloatingField("label"),
-                FloatingField("expense_date"),
-                "category",
-                "paid_by",
                 "currency",
                 HTML(
                     '<div id="converted-amount">{% if converted_amount %}Converted: '
                     "{{ converted_amount }} {{ selected_currency }}{% endif %}</div>"
                     "</br>"
                 ),
+                FloatingField("label"),
+                FloatingField("expense_date"),
+                "category",
+                "paid_by",
                 Div(
                     Submit("Add", submit_text, css_class="me-2"),
                     HTML(

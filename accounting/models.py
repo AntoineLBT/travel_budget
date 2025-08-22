@@ -71,7 +71,9 @@ class Trip(models.Model):
 
     @property
     def total_expenses(self) -> int:
-        return self.expense_set.aggregate(Sum("amount"))["amount__sum"]
+        return self.expense_set.aggregate(Sum("converted_amount"))[
+            "converted_amount__sum"
+        ]
 
     @property
     def last_token(self) -> Optional[Token]:
@@ -134,9 +136,9 @@ class Membership(models.Model):
 
     @property
     def total_expenses(self) -> int:
-        return self.trip.expense_set.filter(user=self.user).aggregate(Sum("amount"))[
-            "amount__sum"
-        ]
+        return self.trip.expense_set.filter(user=self.user).aggregate(
+            Sum("converted_amount")
+        )["converted_amount__sum"]
 
     @property
     def balance(self) -> str:

@@ -330,8 +330,8 @@ class ExpenseView(LoginRequiredMixin, FormView):
 
         converted_amount = (
             CurrencyRatesGetter.convert_amount(
-                form.cleaned_data["trip"].preferred_currency,
                 form.cleaned_data["currency"],
+                form.cleaned_data["trip"].preferred_currency,
                 form.cleaned_data["amount"],
             )
             if form.cleaned_data["currency"]
