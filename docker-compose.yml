@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # Django app service
   web:
@@ -6,26 +8,56 @@ services:
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
         restart: true
+    environment:
+      - VIRTUAL_HOST=travel-budget.eu,www.travel-budget.eu
+      - LETSENCRYPT_HOST=travel-budget.eu,www.travel-budget.eu
+      - LETSENCRYPT_EMAIL=antoine.lebout@gmail.com
 
   # PostgreSQL database service
   db:
     image: postgres:16
     container_name: postgres_db
     volumes:
-      - ${ROOT_PATH:-.}/data/postgresql:/var/lib/postgresql/data # Mounting to a host directory
+      - ${ROOT_PATH:-.}/data/postgresql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       retries: 5
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    container_name: nginx-letsencrypt
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      - nginx-proxy
