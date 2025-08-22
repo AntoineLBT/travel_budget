@@ -128,6 +128,7 @@ class TripPageTests(TestCase, AccountingFixtures):
                 category=Category.TRANSPORT.value,
                 trip=trip,
                 user=trip.owner,
+                converted_amount=Decimal(i),
             )
 
         page = self.client.get(
@@ -156,6 +157,7 @@ class TripPageTests(TestCase, AccountingFixtures):
                 category=Category.TRANSPORT.value,
                 trip=trip,
                 user=trip.owner,
+                converted_amount=Decimal(i),
             )
 
         page = self.client.get(

@@ -206,7 +206,7 @@
                 {% for expense in page_obj %}
                 <tr>
                     <td scope="row">{{expense.label}}</td>
-                    <td>{{expense.amount|floatformat:2}}€</td>
+                    <td>{{expense.converted_amount|floatformat:2}}€</td>
                     <td>{{expense.category}}</td>
                     <td>{{expense.user.username}}</td>
                     <td>{{expense.expense_date}}</td>
