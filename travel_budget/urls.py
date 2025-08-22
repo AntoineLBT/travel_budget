@@ -15,6 +15,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
+from django.shortcuts import redirect
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt.views import (TokenObtainPairView,
@@ -28,6 +29,7 @@ router.register("expense", ExpenseViewset, basename="expense")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", lambda request: redirect("login", permanent=False)),
     path("api-auth/", include("rest_framework.urls", namespace="rest-framework")),
     path("api/token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
